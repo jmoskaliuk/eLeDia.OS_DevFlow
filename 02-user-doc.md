@@ -1,25 +1,38 @@
 # User Documentation
 
-## Popup Control (feat01)
-
-**What does it do?**
-Allows the teacher to control what participants see.
-
-**How to use it:**
-1. Open activity
-2. Click "Open"
-3. Use Next/Back
-
-**Tips:**
-- Use screen sharing for group work
+## Zweck
+Erklärt das System aus Nutzersicht
 
 ---
 
-## Question Navigation (feat02)
+## Struktur
 
-**What does it do?**
-Lets users move through questions.
+### Feature: [Name]
 
-**How to use it:**
-- Click Next to continue
-- Click Back to return
+**Was macht es?**  
+**Wie benutze ich es?**  
+**Beispiel:**  
+**Hinweise:**  
+
+---
+
+## Regeln
+
+- Keine technischen Details
+- Klar und verständlich schreiben
+
+---
+
+## 🔥 KI-Pflicht
+
+Bei JEDEM Feature:
+- prüfen
+- ggf. aktualisieren
+
+---
+
+## KI-Regeln
+
+- Nutzerfokus
+- einfache Sprache
+- keine internen Begriffe ohne Erklärung
