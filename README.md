@@ -6,7 +6,7 @@ It defines how ideas, implementation, documentation, and testing interact in a c
 
 ---
 
-## 🧠 Why eLedia.OS exists
+## Why eLedia.OS exists
 
 Working with AI on software projects introduces a new problem:
 
@@ -24,7 +24,7 @@ eLedia.OS addresses this by introducing a **minimal but strict structure** for h
 
 ---
 
-## 🧩 Core idea
+## Core idea
 
 eLedia.OS separates software development into **five distinct perspectives**:
 
@@ -40,7 +40,7 @@ Each file has a **single responsibility**.
 
 ---
 
-## ⚙️ System logic
+## System logic
 
 The system is built around a simple but powerful principle:
 
@@ -85,7 +85,7 @@ leads to:
 
 ---
 
-## 🔥 The most important rule
+## The most important rule
 
 > A feature is only done when all perspectives are consistent.
 
@@ -99,4 +99,136 @@ If one is missing → the feature is not done.
 
 ---
 
-## 🔁 Workflow
+## Workflow
+
+**Idea → Feature → Task → Implementation → Test → Bug → Fix → Done → Documentation Sync**
+
+## Workflow (Detailed)
+
+eLedia.OS follows a structured but lightweight workflow that separates thinking, implementation, and validation.
+
+### 1. Idea
+
+A new idea, observation, or requirement emerges.
+
+- Source: user feedback, testing, bug, or new feature need
+- Action: create or extend a feature in `01-features.md`
+
+---
+
+### 2. Feature Definition (`featXX`)
+
+The idea is formalized as a feature.
+
+Defined in: `01-features.md`
+
+Includes:
+- goal (why it exists)
+- behavior (what should happen)
+- non-goals (what is intentionally excluded)
+- decisions (how it should work conceptually)
+
+👉 At this stage, there is no code — only intent.
+
+---
+
+### 3. Task Creation (`taskXX`)
+
+The feature is broken down into concrete work items.
+
+Defined in: `04-tasks.md`
+
+Tasks should:
+- be small and executable
+- reference a feature (`featXX`)
+- have a clear outcome
+
+👉 This is where planning becomes actionable.
+
+---
+
+### 4. Implementation
+
+Tasks are implemented in code.
+
+- may involve multiple iterations
+- may raise new questions → go back to tasks or feature
+- may reveal inconsistencies → update feature
+
+👉 Reality starts diverging from intention here — this is expected.
+
+---
+
+### 5. Testing (`testXX`)
+
+The implemented behavior is verified.
+
+- manual testing (UI, flows)
+- automated testing (if available)
+
+Recorded in: `05-quality.md`
+
+👉 This step validates whether implementation matches intent.
+
+---
+
+### 6. Bug Handling (`bugXX`)
+
+If something fails:
+
+- create a bug in `05-quality.md`
+- describe:
+  - expected behavior
+  - actual behavior
+  - reproduction steps
+
+Then:
+- create a new task to fix it
+
+---
+
+### 7. Fix
+
+Bug is resolved through a new task.
+
+- update code
+- retest
+- link fix to bug and feature
+
+👉 Bugs are part of the normal loop, not an exception.
+
+---
+
+### 8. Done (Verification)
+
+A task or feature is considered done when:
+
+- behavior works as expected
+- tests (manual or automated) pass
+- no blocking bugs remain
+
+---
+
+### 9. Documentation Sync (Critical Step)
+
+Now the system enforces consistency:
+
+Update:
+- `02-user-doc.md` → how users interact with the feature
+- `03-dev-doc.md` → how it is implemented
+- `01-features.md` → if behavior changed during implementation
+
+👉 This step ensures long-term clarity and prevents knowledge loss.
+
+---
+
+## 🔄 Important: This is a loop, not a line
+
+The workflow is iterative:
+
+- implementation may trigger new tasks
+- testing may reveal bugs
+- bugs create new tasks
+- tasks may require feature refinement
+
+👉 eLedia.OS is designed for continuous refinement, not linear execution.
