@@ -1,13 +1,49 @@
-# Tasks
+# Work & Testing Inbox
 
-## task01 Implement Popup Control
-Status: done
-Feature: feat01
+## Zweck
+Operative Steuerung
 
-## task02 Implement Navigation
-Status: done
-Feature: feat02
+---
 
-## task03 Fix popup sync issue
-Status: open
-Feature: feat01
+## Neu
+
+---
+
+## Klärung notwendig
+
+---
+
+## Tasks
+
+### TASK-XXX Titel
+**Status:** open / in-progress / done  
+**Beschreibung:**  
+**Bezug:** FEAT-XXX  
+
+---
+
+## In Arbeit
+
+---
+
+## Nach Deploy verifizieren
+
+---
+
+## Done
+
+---
+
+## Regeln
+
+- Tasks klar schneiden
+- erledigte verschieben
+- keine langen Diskussionen
+
+---
+
+## KI-Regeln
+
+- Zu Beginn triagieren
+- priorisieren
+- nichts löschen, nur verschieben
