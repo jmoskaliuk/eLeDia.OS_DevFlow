@@ -1,12 +1,12 @@
-# eLedia.OS
+# eLeDia.OS
 
-eLedia.OS is a structured operating system for AI-assisted software development.
+eLeDia.OS is a structured operating system for AI-assisted software development.
 
 It defines how ideas, implementation, documentation, and testing interact in a consistent workflow — enabling humans and AI (e.g. Claude, ChatGPT) to collaborate effectively without chaos.
 
 ---
 
-## Why eLedia.OS exists
+## Why eLeDia.OS exists
 
 Working with AI on software projects introduces a new problem:
 
@@ -20,13 +20,13 @@ Typical issues:
 - bugs and tests are tracked inconsistently
 - AI produces correct but contextually wrong solutions
 
-eLedia.OS addresses this by introducing a **minimal but strict structure** for how information is organized and maintained.
+eLeDia.OS addresses this by introducing a **minimal but strict structure** for how information is organized and maintained.
 
 ---
 
 ## Core idea
 
-eLedia.OS separates software development into **five distinct perspectives**:
+eLeDia.OS separates software development into **five distinct perspectives**:
 
 | Perspective | File | Question |
 |------------|------|----------|
@@ -105,7 +105,7 @@ If one is missing → the feature is not done.
 
 ## Workflow (Detailed)
 
-eLedia.OS follows a structured but lightweight workflow that separates thinking, implementation, and validation.
+eLeDia.OS follows a structured but lightweight workflow that separates thinking, implementation, and validation.
 
 ### 1. Idea
 
@@ -231,7 +231,7 @@ The workflow is iterative:
 - bugs create new tasks
 - tasks may require feature refinement
 
-👉 eLedia.OS is designed for continuous refinement, not linear execution.
+👉 eLeDia.OS is designed for continuous refinement, not linear execution.
 
 ## 🧭 Workflow Overview
 
