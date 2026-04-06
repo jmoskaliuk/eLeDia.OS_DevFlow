@@ -11,9 +11,9 @@
 ## 2. Session-Start (für KI)
 
 1. Lies dieses Dokument vollständig
-2. Lies `04-work.md`
-3. Prüfe offene TASKs
-4. Lies relevante FEATs in `01-product.md`
+2. Lies `04-tasks.md`
+3. Prüfe offene taskXX-Einträge
+4. Lies relevante featXX-Einträge in `01-features.md`
 5. Beginne mit höchstpriorisiertem Task
 
 ---
@@ -22,10 +22,10 @@
 
 | Datei | Zweck |
 |------|------|
-| 01-product.md | Was bauen wir und wie (Soll) |
+| 01-features.md | Was bauen wir und wie (Soll) |
 | 02-user-doc.md | Nutzung aus Anwendersicht |
 | 03-dev-doc.md | Technische Umsetzung (Ist) |
-| 04-work.md | Tasks + Testing-Inbox |
+| 04-tasks.md | Tasks + Testing-Inbox |
 | 05-quality.md | Bugs + Testläufe |
 
 ---
