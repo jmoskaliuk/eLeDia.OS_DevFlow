@@ -197,6 +197,16 @@ Bug is resolved through a new task.
 
 👉 Bugs are part of the normal loop, not an exception.
 
+## Documentation Baseline
+
+The repository itself follows the same rules it describes:
+
+- `00-master.md` is the entry point for each session.
+- `01-features.md` to `05-quality.md` are the authoritative workflow files.
+- IDs are written consistently as `featXX`, `taskXX`, `bugXX`, and `testXX`.
+
+If these documents drift apart, the workflow is considered broken and should be fixed before adding further process complexity.
+
 ---
 
 ### 8. Done (Verification)
