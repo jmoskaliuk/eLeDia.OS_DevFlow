@@ -1,31 +1,51 @@
 # Developer Documentation
 
-## Zweck
-Beschreibt die tatsächliche technische Umsetzung
+## Meta
+
+This document describes the actual implementation.
+
+It answers:
+→ How is the system built?
+
+Use this document when:
+- implementation changes
+- architecture needs explanation
+
+Do NOT include:
+- feature ideas
+- tasks
+- vague plans
 
 ---
 
-## Struktur
+## Popup Control (feat01)
 
-### Feature: [Name]
+**Architecture**
+- communication via postMessage
 
-**Architektur:**  
-**Komponenten:**  
-**Datenfluss:**  
-**Besonderheiten:**  
+**Components**
+- view.js
+- popup.js
 
----
+**Data Flow**
+View → Popup → View
 
-## Regeln
-
-- Nur IST-Zustand
-- Keine Tasks
-- Keine Ideen
+**Constraints**
+- no backend sync
 
 ---
 
-## KI-Regeln
+## Question Navigation (feat02)
 
-- Nur implementierte Dinge beschreiben
-- präzise und knapp
-- keine Spekulation
+**Architecture**
+- session-based navigation
+
+**Components**
+- navigation handler
+- session storage
+
+**Data Flow**
+User → Session → UI
+
+**Known limitations**
+- state resets on full reload
