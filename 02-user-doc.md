@@ -60,7 +60,7 @@ Do NOT include:
 
 ---
 
-# 🧭 Product Usage Overview
+# Product Usage Overview
 
 ## Target Users
 Who are the main users?
@@ -100,7 +100,7 @@ Explain important concepts in simple terms.
 
 ---
 
-# 🧩 Feature Usage
+# Feature Usage
 
 Each feature describes how a user interacts with it.
 
@@ -163,7 +163,7 @@ Provide a realistic usage example.
 
 ---
 
-# 📏 Rules
+# Rules
 
 - Every feature must reference a `featXX`
 - Keep language simple and user-focused
@@ -173,6 +173,6 @@ Provide a realistic usage example.
 
 ---
 
-# 🔑 Key Principle
+# Key Principle
 
 > This document explains how the product feels and works for the user — not how it is built.
