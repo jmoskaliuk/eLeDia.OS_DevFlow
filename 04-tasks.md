@@ -635,6 +635,11 @@ Definition of done:
 - end-to-end: Runbot order → Directus installation record → portal settings pre-filled
 - no manual Directus Studio step required for new customer onboarding
 
+Architecture decision / handoff summary:
+- Primary registration path: Runbot / Shop provisioning calls `POST /v1/portal/installations` immediately after provisioning.
+- Portal / Moodle plugin is the runtime sync owner afterwards (`snapshot`, `plugins/sync`, `events`).
+- Plugin-side self-registration is fallback-only for recovery / resilience and should not replace the primary provisioning flow.
+
 Progress 2026-04-18 (Agent A side):
 - `directus/extensions/v1/index.js` — new `POST /v1/portal/installations` behind the existing service-token guard. Validates `id` (UUID), `label`/`moodle_version` (length-bounded), `profile` against allowlist `managed`/`self_hosted`/`demo`, optional `contact_email` (format-checked). Returns `201 {id, label, moodle_version, profile, contact_email, snapshot_status, created_at}` or `409` when the UUID is already registered.
 - `ensureInstallationTable(database)` — lazy table creator (same pattern as `ensurePortalRequestTable`), so the endpoint works **before** the matching Studio collection is added. Schema: `id`, `label`, `moodle_version`, `profile`, `contact_email`, `snapshot_status` (default `current`), `created_at`, `created_by`. A later Studio collection with overlapping schema picks up the existing table — no manual data migration.
@@ -726,14 +731,15 @@ Priorität/Reihenfolge:
 ### 4-Agent Arbeitsteilung (verbindlich)
 
 Claude (Directus/API):
-- owns schema + endpoint contract + persistence semantics
-- responsible tasks: task33, task34, API-part of task36
-- must provide: migrations/snapshot changes, endpoint validation, idempotent upserts, API examples
+- owns backend implementation: Directus/API plus Moodle-PHP work where code changes are required
+- responsible tasks: task33, task34, task35, task36, task37, task41
+- must provide: migrations/snapshot changes, endpoint validation, idempotent upserts, reviewed intake code, fixed Moodle integration in `local_customerportal`
 
 Gemini (Moodle/Portal):
-- owns producer and consumer side in Moodle (`local_customerportal`)
-- responsible tasks: task35, task37, plugin-part of task36
-- must provide: scheduled sync writer, payload normalization, resilient retries, portal rendering fallback states
+- owns review, acceptance, API-consumer validation, and portal behavior checks
+- **does not implement Moodle plugin/PHP code**
+- responsible tasks: review support for task35/task36/task37, validation input for task38, functional review of task41 mapping/output
+- must provide: review notes on the six draft PHP files, payload examples, expected portal states, acceptance evidence after Claude's implementation
 
 Coordinator (QA & Release Gate):
 - owns rollout sequence, smoke evidence, and release gate decision
@@ -755,9 +761,9 @@ Handoff gates (no parallel bypass):
   - Claude provides `ensureInstallationPluginTable()` schema definition
   - Codex confirms: `installation` fields + `installation_plugin` table live in Directus Studio
 3. Gemini -> Coordinator gate after task35/task37:
-  - successful local roundtrip evidence (snapshot + plugin sync)
-  - portal reads real `installation_plugin` rows
-4. Claude+Gemini -> Coordinator gate after task36:
+  - review evidence for portal read-path and expected API/UX behavior
+  - acceptance of real `installation_plugin` rows after Claude's implementation
+4. Claude -> Coordinator gate after task36:
   - duplicate event idempotency proven
   - drift correction via periodic snapshot proven
 5. Codex -> Coordinator gate (prerequisite for task38 live smoke):
@@ -766,7 +772,8 @@ Handoff gates (no parallel bypass):
 
 Decision rights:
 - Claude decides DB/API shape.
-- Gemini decides Moodle extraction/rendering details.
+- Claude decides Moodle implementation details for `local_customerportal`.
+- Gemini decides review findings, acceptance criteria wording, and portal behavior expectations.
 - Coordinator decides rollout timing and release acceptance.
 - Codex decides deployment sequencing and Studio migration order.
 
@@ -775,7 +782,7 @@ Escalation rule:
 - if a schema conflict is found by Codex in Studio, Claude is consulted before applying; schema code and Studio must stay in sync.
 
 ### task33 Directus schema extension — installation digital twin core
-Status: open
+Status: done (2026-04-19 live)
 Feature: feat09
 Owner: Claude (lazy-create code) + Codex (Studio migration)
 Depends on: task31
@@ -805,7 +812,7 @@ Definition of done:
 ### task34 v1 extension — snapshot + plugin sync endpoints
 Status: done (2026-04-19)
 Feature: feat09
-Owner: Agent A
+Owner: Claude
 Depends on: task33
 Scope:
 - implement `POST /v1/portal/installations/snapshot` (upsert by `installation_id`)
@@ -828,9 +835,9 @@ Verification:
 - live snapshot upsert, plugin sync roundtrip, and event idempotency verified on `2026-04-19`
 
 ### task35 local_customerportal — snapshot and plugin sync writer
-Status: open
+Status: done (2026-04-20, plugin commit `3041df5`, v0.2.0) — scheduled tasks live; draft files removed after migration
 Feature: feat03, feat09
-Owner: Agent B
+Owner: Claude
 Depends on: task34
 Scope:
 - extend `installation_service`/new sync service to produce installation snapshot payload:
@@ -844,15 +851,20 @@ Scope:
   - full snapshot every 15 min
   - plugin sync every 15 min (same task or sibling task)
 - robust failure handling with retry-friendly behavior (no portal hard-fail)
+- migrate and repair these draft files as source material only:
+  - `tasks/sync_installation_snapshot.php`
+  - `tasks/sync_installation_plugins.php`
+  - `tasks/tasks.php`
+  - `tasks/installation_service.php` (logic only; file itself must **not** be copied verbatim)
 Definition of done:
 - local sync task writes snapshot and plugin rows end-to-end
 - no fatal errors when Directus is temporarily unavailable
 - PHPUnit for payload normalization and API client interactions is green
 
 ### task36 change event log — audit trail + idempotency
-Status: open
+Status: done (2026-04-20) — API live (Commit `9564552`), plugin producer via diff-based strategy in `sync_service::emit_plugin_change_events` (no non-existent core events), 422 live `plugin_installed` events verified
 Feature: feat09
-Owner: Agent A + Agent B
+Owner: Claude
 Depends on: task34, task35
 Scope:
 - add `installation_change_event` table/collection:
@@ -863,15 +875,16 @@ Scope:
   - `plugin_installed`, `plugin_updated`, `plugin_removed`
   - `tier_changed`, `addon_enabled`, `addon_disabled`, `storage_changed`
 - plugin side emits events for explicit actions; periodic snapshot remains source of truth for drift correction
+- current draft observer approach in `tasks/events.php` + `tasks/observer.php` is rejected because referenced core events do not exist; reimplementation must use a valid event source or diff strategy
 Definition of done:
 - duplicate event submission does not create duplicate rows
 - event stream is queryable per installation for support/audit
 - smoke path validates one positive event ingestion and one duplicate rejection/ignore
 
 ### task37 portal read path — remove deterministic plugin bootstrap
-Status: open
+Status: done (2026-04-20, plugin commit `3041df5`) — `myplugins.php` + `plugin_list.mustache` zeigen die vier Status-Badges und einen expliziten `never_synced`-Leerstand; Bootstrap-Fallback auf v1-Seite greift nur noch bei leerer `installation_plugin`-Tabelle
 Feature: feat03, feat09
-Owner: Agent B
+Owner: Claude
 Depends on: task35
 Scope:
 - switch portal "Meine Plugins" and detail overlay read path to real `installation_plugin` rows
@@ -887,7 +900,7 @@ Definition of done:
 ### task38 Release 1.2 Plus verification pack
 Status: open
 Feature: feat03, feat09
-Owner: Agent C (Coordinator)
+Owner: Coordinator
 Depends on: task33, task34, task35, task36, task37
 Scope:
 - extend `directus/scripts/v1_contract_smoke_test.sh` with:
@@ -904,6 +917,57 @@ Definition of done:
 - new smoke suite is green against live endpoint
 - quality doc contains reproducible commands + expected outputs
 - release gate can be evaluated in one pass by Ops/QA
+
+### task41 Link-based plugin intake (GitHub + moodle.org)
+Status: deferred / proposed-only (2026-04-20) — MVP-Code wurde nie committed und ging nach `git checkout --` verloren; vor einer Re-Implementierung in eine eigene Directus-Extension auslagern (siehe Decision unten und `docs/05-quality.md → risk05`)
+Feature: feat01, feat09
+Owner: Claude
+Depends on: task11
+Scope:
+- the previously-existing `POST /v1/portal/plugins/intake-links` MVP never reached git and is no longer recoverable; `docs/03-dev-doc.md → "Link-Based Plugin Intake"` now describes a proposed endpoint, not an implemented one
+- when task41 is revived, implement it as a separate Directus extension `plugin-intake` instead of growing `directus/extensions/v1/index.js` further (already 1249 lines); pattern matches existing `catalog-projection-hook` + `v1`
+
+Decision (2026-04-20, Claude review):
+- Keep `/v1/portal/plugins/intake-links` as a contract proposal in the dev-doc (labeled "proposed R1.3").
+- Split the implementation into `directus/extensions/plugin-intake` when work resumes — v1 stays the stable portal-write surface, intake gets its own lifecycle, tests and deploy script.
+- Before any redeploy, add explicit smoke steps for dry-run and write mode (see quality plan test17).
+
+Definition of done (when task41 is picked up again):
+- `plugin-intake` extension scaffolded with its own manifest + deploy script
+- parser, idempotent canonical upsert, and dry-run path covered by PHPUnit or smoke scripts
+- response contract finalized in `docs/03-dev-doc.md` (status flipped from "proposed" to "implemented")
+
+### task42 Directus: `runbot_demo_config` collection (Runbot SSOT migration)
+Status: schema designed, scripts ready — pending live apply + seed import
+Feature: feat07
+Owner: Claude (apply + seed) · Gemini (editorial review of seed content)
+Depends on: task27 (runbot_demo_id field live)
+Scope:
+- new collection `runbot_demo_config` as editorial SSOT for Runbot demo cards
+- replaces static `configs.json` in Runbot as primary data source
+- Runbot continues to use `configs.json` as fallback (`CONFIGS_SOURCE=hybrid`)
+- schema: `directus/schema/runbot-demo-config-v1.yaml`
+- migration script: `directus/scripts/apply_runbot_demo_config.sh`
+- seed: `docs/seeds/runbot_demo_config_seed.json` — 7 entries: leitnerflow, exam2pdf, spinningwheel, vanilla-4.5, vanilla-5.1, vanilla-5.1-mariadb, vanilla-dev
+- vanilla Moodle entries supported without plugin relation (plugin_* fields nullable)
+- `status=published` + `visible=true` is the Runbot publish gate
+Definition of done:
+- `runbot_demo_config` table live on directus.eledia.ai
+- 7 seed entries imported, snapshot_id placeholders reconciled with live Runbot snapshot registry
+- `CONFIGS_SOURCE=hybrid` + `DIRECTUS_CONFIG_COLLECTION=runbot_demo_config` set in Runbot env
+- Runbot smoke test passes: demo cards load from Directus (hybrid fallback also tested)
+- `docs/03-dev-doc.md` updated (done)
+- snapshot captured and committed
+
+### Priorisierte offene Punkte (Stand 2026-04-20)
+
+1. **P0:** Claude übernimmt task35/task36/task37 in echtem Moodle-Plugin-Code; die sechs Dateien unter `tasks/*.php` sind nur Draft-Material und dürfen nicht direkt deployt werden.
+2. **P0:** Claude sichtet den vorhandenen task41-MVP in `directus/extensions/v1/index.js`; Code bleibt bis zur Entscheidung erhalten.
+3. **P0:** Claude applyt `apply_runbot_demo_config.sh` auf live Directus + importiert Seed (task42); snapshot_id-Platzhalter mit Runbot-Team abgleichen.
+4. **P1:** Gemini reviewt Claudes Moodle-Umsetzung fachlich und validiert Portal-Verhalten, schreibt aber keinen Plugin-/PHP-Code.
+5. **P1:** Gemini reviewt Seed-Inhalte in `runbot_demo_config_seed.json` (Namen, Kategorien, Features) — editorial only.
+6. **P1:** Coordinator aktualisiert nach Claudes Umsetzung Smoke-Pack und Release-Gate.
+7. **P2:** Codex redeployed erst nach Claudes Review/Fix-Runde erneut, falls dafür Änderungen an Directus ausgerollt werden müssen.
 
 ---
 

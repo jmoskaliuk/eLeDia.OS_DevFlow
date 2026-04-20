@@ -103,7 +103,7 @@ Fix: wrap the slug with `md5()`, same pattern as `install_*`, `plugins_*`, `over
 
 ### bug10 Release 1.2 Plus — Moodle-Plugin-Code fehlerhaft abgelegt und teilweise nicht lauffähig
 Severity: major (rollout-blocker für task35 + Plugin-Teil task36)
-Status: open (diagnosed 2026-04-19) — fixes belong to Agent B (Moodle/Portal)
+Status: open (diagnosed 2026-04-19) — implementation fixes move to Claude on 2026-04-20; Gemini reviewt nur
 
 Agent B's draft files for task35 + Plugin-Teil task36 landed unter `eledia.os_repo/tasks/*.php` statt im `local_customerportal`-Moodle-Plugin. Mehrere Dateien referenzieren APIs, Klassen oder Core-Events, die nicht existieren — ein Deploy im aktuellen Zustand würde den Moodle-Cron crashen oder die Observer stumm lassen.
 
@@ -145,19 +145,20 @@ Betroffene Dateien (alle in `eledia.os_repo/tasks/`):
 13. Nach erfolgreichem `/v1/portal/installations/snapshot` invalidiert der Task den `installationdata`-Cache nicht — Portal zeigt bis zum TTL-Ablauf einen veralteten Stand.
 14. `sync_installation_snapshot.php` kennt keinen Backoff bei Directus-Ausfall — effektives Retry-Intervall = Cron-Tick (15 min). "last failed sync"-Marker für Observability fehlt.
 
-#### Erforderliche Aktion (Agent B)
+#### Erforderliche Aktion (Claude implementation, Gemini review)
 
-- Dateien in `local_customerportal/` verschieben und korrekt einhängen:
+- Claude verschiebt/überführt die Logik in `local_customerportal/` und hängt sie korrekt ein:
   - `classes/local/health_service.php` (NEU; implementieren)
   - `classes/task/sync_installation_snapshot.php`, `classes/task/sync_installation_plugins.php`
   - `classes/local/observer.php` (erst umbauen, nachdem eine funktionierende Event-Quelle gewählt ist)
   - `db/events.php` — mergen, nicht ersetzen
   - `db/tasks.php` — in bestehendes Array aufnehmen
   - **NICHT** `installation_service.php` ins Plugin kopieren — neue Logik in bestehende Klasse einfalten.
-- `eledia.os_repo/tasks/*.php` löschen, sobald Moves erfolgt sind.
+- Die sechs Dateien unter `eledia.os_repo/tasks/*.php` bleiben bis zur Migration als Draft-Artefakte erhalten; danach löschen.
 - Fehlende Lang-Strings ergänzen (de + en).
 - Cache-Definition `pluginsdata` in `db/caches.php` aufnehmen ODER `installationdata` wiederverwenden.
 - Plugin-Observer-Strategie neu entscheiden (Diff-basiert oder Moodle-5-Hooks).
+- Gemini prüft danach: Payloads, erwartete Portal-States, Roundtrip-Nachweis und Abnahmekriterien für Coordinator.
 
 #### Verifikation nach Fix (Definition of Done für bug10)
 
@@ -167,11 +168,37 @@ Betroffene Dateien (alle in `eledia.os_repo/tasks/`):
 - Observer-Integration: Event-Quelle triggern → `POST /v1/portal/installations/:id/events` liefert `201 duplicate: false`; Wiederholung → `200 duplicate: true`.
 - Portal "Meine Plugins" zeigt echte Rows; entfernte Plugins erscheinen mit Tag "Entfernt".
 
+### risk05 Plugin-intake MVP geht verloren oder wird unreviewed ausgerollt
+Wenn der zusätzliche task41-Code in `directus/extensions/v1/index.js` nicht bewusst gesichert und reviewed wird, droht entweder stiller Verlust der Arbeit oder ein unkontrollierter Deploy eines nur teilweise validierten MVPs.
+
+Entscheidung (2026-04-20, Claude Review — siehe task41 in `docs/04-tasks.md`):
+- Der MVP-Code (`parsePluginIntakeLink`, `componentFromGithubRepo`, `POST /v1/portal/plugins/intake-links`) **existiert auf disk nicht mehr** — er wurde nur uncommitted im Working Tree gehalten und ging beim `git checkout -- directus/extensions/v1/index.js` (2026-04-19 End-of-day) verloren. Weder `git log` noch `git reflog` enthalten ihn.
+- Konsequenz: kein Review-Objekt mehr vorhanden. Der in `docs/03-dev-doc.md` dokumentierte Endpoint ist damit **Spec, nicht Implementierung**.
+- Empfehlung für den nächsten Anlauf (wenn task41 wirklich ausgeliefert werden soll): eigenständige Directus-Extension `plugin-intake` — analog zum bestehenden `catalog-projection-hook`-Pattern — statt die Endpoint-Datei `v1/index.js` weiter wachsen zu lassen (aktuell 1249 Zeilen).
+- Bis zur Re-Implementierung: `POST /v1/portal/plugins/intake-links` liefert `404`, Docs-Abschnitt mit Status "proposed" kennzeichnen statt "implemented".
+
 #### Agent A (Directus-API) ist nicht betroffen
 
 - `v1/index.js` + alle drei neuen Endpoints live und smoke-verifiziert (2026-04-19).
 - Contract stabil, keine Nachbesserung nötig.
 - `installation.last_event_at` nachgereicht (Commit `9564552`), Spec `claude_r12plus.md` vollständig erfüllt.
+
+### bug10 update (2026-04-20) — task35/36-plugin/37 umgesetzt
+
+Die unter bug10 aufgelisteten Issues sind mit Commit `3041df5` in `local_customerportal` (v0.2.0) behoben. Zusammenfassung der Überführung:
+
+- **Nicht verwendete Core-Events vermieden:** Kein `\core\event\plugin_*`. Events werden Diff-basiert in `sync_service::emit_plugin_change_events()` aus dem Vergleich `current_plugins` ↔ `plugin_state_last` erzeugt.
+- **`health_service` (NEU):** aggregiert `lastcronruntime` + `task_*.faildelay`-Zähler zu `green|amber|red`. Ersetzt das vorherige Hardcoded-`green`.
+- **`sync_service` (weiterentwickelt):** Gemini-Basis um Config-driven `profile`, `health_service`-Delegation und `storage_quota_gb`-Opt-in ergänzt.
+- **Cron-Registrierung:** `db/tasks.php` um `sync_installation_snapshot` + `sync_installation_plugins` ergänzt (gemerged, nicht ersetzt).
+- **Read-Path (task37):** `myplugins.php` + `plugin_list.mustache` rendern alle vier Status-Badges (`installed`, `outdated`, `deprecated`, `removed`); neuer `never_synced`-Zustand wenn `installation.last_sync_at` leer.
+- **Cache-Invalidierung:** `installation_service::invalidate_caches()` wird nach erfolgreichem Snapshot-POST aufgerufen; Cache-Keys auf `md5()` normiert (bug03-Pattern).
+- **Keine Klassendopplung:** Draft-`installation_service.php` wurde **nicht** ins Plugin kopiert; stattdessen `has_synced()` + `invalidate_caches()` in die bestehende Klasse eingearbeitet.
+- **Draft-Dateien** unter `eledia.os_repo/tasks/*.php` sind mit Commit `3041df5` in `local_customerportal` aufgegangen und wurden aus dem SSOT-Repo entfernt.
+
+Verifikation:
+- `moodle-test` grün: 29/29 Tests, 87 Assertions, codechecker 0/0.
+- Live-Smoke gegen `directus.eledia.ai` mit Service-Token: Snapshot + 421-Plugin Bulk-Sync + 422 `plugin_installed`-Events alle `HTTP 200`, Installation `0994d330-d04f-42b4-ad4b-a5d1cfcc1c28` trägt populierte Telemetrie + frisches `last_sync_at`.
 
 ---
 
@@ -493,7 +520,7 @@ Evidence: Status `400`, correctly rejected with error code.
 
 ### test17 Link-based plugin intake endpoint (task41 MVP)
 Feature: feat01, feat09
-Result: pending (code implemented 2026-04-19; live smoke pending)
+Result: deferred (2026-04-20) — implementation was never committed and is not recoverable; revive plan moves work into a standalone `plugin-intake` extension (see `docs/04-tasks.md → task41`). Steps below stay on file as the smoke template for the next iteration.
 
 **Goal**
 Verify that `POST /v1/portal/plugins/intake-links` supports safe dry-run parsing and idempotent canonical upsert behavior.
@@ -516,6 +543,28 @@ Verify that `POST /v1/portal/plugins/intake-links` supports safe dry-run parsing
   - expect stable result (rows updated in place, no duplicates by `plugin_component.component`).
 6. Manual DB/Studio check:
   - `plugin_component` contains normalized `component` values and additive field updates only.
+
+### test18 Moodle 5.2 Demo card end-to-end workflow
+Feature: feat01, feat02, feat09
+Result: passed (2026-04-20, manual)
+
+**Goal**
+Walk a newly authored catalog entry through the full SSOT → projection → public API → portal stack to prove the Release 1.2+ workflow actually works for a fresh card.
+
+**Setup**
+Insert a `moodle-5-2-demo` entry via SQL on `directus.eledia.ai`:
+- `product` row with `vendor_id` → eLeDia GmbH, `runbot_demo_id='moodle-5-2'`, `pricing_model='free'`, `is_eledia_product=true`, `gdpr_readiness='green'`.
+- `catalog_entry_public` projection row mirroring the canonical fields plus SEO (`meta_title`, `meta_description`, `tags`), maintainer JSON subset, and `supported_versions=[{channel: moodle, min: 5.2, max: 5.2}]`.
+
+**Verification (2026-04-20)**
+- `GET /v1/catalog/search?page_size=10` returned 5 entries including `moodle-5-2-demo` with classification fields populated (`pricing_model=free`, `is_eledia_product=true`, `gdpr_readiness=green`, `runbot_demo_id=moodle-5-2`).
+- `GET /v1/catalog/search?entry_type=product&is_eledia_product=true` returned exactly `attendance-plus-pro` + `moodle-5-2-demo` — classification filter pass-through works.
+- `GET /v1/catalog/moodle-5-2-demo` detail payload carried `meta_title`, `supported_versions`, `maintainer.is_moodle_certified_partner=true`, `runbot_demo_id=moodle-5-2`.
+- Portal flow (manual): catalog list shows the card with pricing+eLeDia+GDPR badges; detail renders the maintainer block; "Demo starten" CTA target is `https://demo.eledia.ai?demo=moodle-5-2`.
+
+**Notes**
+- `supported_moodle` string column stays `null` on the projection row for non-plugin entries; consumers that need a human-readable version use `supported_versions[0]` instead.
+- Insert path bypasses the `catalog-projection-hook` because SQL writes don't trigger Directus item hooks; for repeated seeding, prefer the Directus Studio UI or admin REST API so the hook re-derives the projection.
 
 ---
 

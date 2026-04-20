@@ -13,7 +13,7 @@ It is the source of truth for:
 
 ---
 
-## Live Status (2026-04-19)
+## Live Status (2026-04-20)
 
 Directus: 11.17.3 — PostgreSQL — `directus.eledia.ai`
 
@@ -21,12 +21,14 @@ Directus: 11.17.3 — PostgreSQL — `directus.eledia.ai`
 
 - `plugin_component`, `plugin_release`, `product`, `product_component`, `plugin_review`, `plugin_review_dimension`, `catalog_entry_public`
 - `installation`, `portal_request` — lazy-created by v1 extension (task31)
-- `installation_plugin`, `installation_change_event` — live and managed (task33)
+- `installation_plugin`, `installation_change_event` — live via R1.2 migration + Studio metadata (task33)
+- `runbot_demo_config` — **pending apply** (task42; script ready: `apply_runbot_demo_config.sh`)
 
 ### Seed counts
 
 - `plugin_component`: 3 · `plugin_release`: 3 · `product`: 2 · `product_component`: 3
 - `plugin_review`: 2 · `plugin_review_dimension`: 3 · `catalog_entry_public`: 3
+- `runbot_demo_config`: 0 (7 entries in seed, pending import)
 
 ### Extensions loaded
 
@@ -48,6 +50,7 @@ Directus: 11.17.3 — PostgreSQL — `directus.eledia.ai`
 | `POST /v1/portal/installations/snapshot` | 200/201 (service token, task34) |
 | `POST /v1/portal/installations/{id}/plugins/sync` | 200 (service token, task34) |
 | `POST /v1/portal/installations/{id}/events` | 200/201 (service token, task36 API part) |
+| `POST /v1/portal/plugins/intake-links` | **404** (proposed-only — see `task41` in `04-tasks.md`, will ship as separate `plugin-intake` extension) |
 
 Verification:
 - `directus/scripts/v1_contract_smoke_test.sh` — 8/8 passed on 2026-04-18 (baseline)
@@ -68,6 +71,24 @@ Migration adds:
 - New table `installation_plugin` with 4-way linkage model and all Studio metadata
 - New table `installation_change_event` with idempotency unique index and all Studio metadata
 - Tabular presets: "Installation Plugins", "Installation Events"
+
+### R1.4 — Runbot Demo Config (pending apply, task42)
+
+Schema migration script: `directus/scripts/apply_runbot_demo_config.sh`
+
+To apply on `directus-vps`:
+```bash
+bash directus/scripts/apply_runbot_demo_config.sh directus-vps
+# Import seed: Directus Studio → runbot_demo_config → Import JSON
+# or: POST https://directus.eledia.ai/items/runbot_demo_config  (Bearer <service-token>)
+# Reconcile snapshot_id placeholders with Runbot snapshot registry.
+bash directus/scripts/capture_snapshot.sh
+```
+
+Migration adds:
+- New table `runbot_demo_config` — 21 fields, Studio metadata, M2O relation to `plugin_component`
+- Tabular preset "Demo Configs"
+- Runbot env: `CONFIGS_SOURCE=hybrid`, `DIRECTUS_CONFIG_COLLECTION=runbot_demo_config`
 
 ### Studio UX patch applied
 
@@ -624,6 +645,23 @@ The endpoint is allowed to fall back to deterministic bootstrap data only while 
 - Response `201` returns: `id`, `label`, `flavour`, `moodle_version`, `release_channel`, `profile`, `sla_level`, `user_tier`, `addon_bbb_enabled`, `addon_solr_enabled`, `contact_email`, `snapshot_status` (defaults to `current`), `created_at`.
 - Backing table `installation` is created lazily on first call (same pattern as `portal_request`); creating the matching collection in Studio later just registers the existing table.
 
+##### Provisioning Flow (`demo.eledia.ai` / Runbot Onlineshop → Directus → Moodle Plugin)
+
+Release-2 primary path:
+
+1. Shop / provisioning creates or knows the stable `installation_id`.
+2. Shop / provisioning calls `POST /v1/portal/installations`.
+3. Directus creates the canonical `installation` row.
+4. Shop includes the same `installation_id` plus `directus_url` in the Welcome-Mail / setup link.
+5. The Moodle plugin stores that configuration locally during onboarding.
+6. The Moodle plugin owns the runtime sync afterwards via `POST /v1/portal/installations/snapshot`, `POST /v1/portal/installations/{installation_id}/plugins/sync`, and `POST /v1/portal/installations/{installation_id}/events`.
+
+Architecture decision:
+
+- Primary registration path: shop / provisioning registers first in Directus.
+- Runtime sync path: Moodle plugin keeps the registered installation current.
+- Fallback only: plugin-side self-registration is allowed as a resilience fallback when provisioning could not pre-register, but it is not the intended default onboarding path.
+
 #### Agent A → Agent B handoff (task34 + task36 API)
 
 These endpoints are the portal-writable surface for Release 1.3. All three live under `/v1/portal/*` and require the standard Bearer service-token. Lazy-table pattern: `installation`, `installation_plugin`, and `installation_change_event` are created on first hit.
@@ -744,9 +782,14 @@ Response (fresh insert):
 }
 ```
 
-### Link-Based Plugin Intake (proposed R1.3)
+### Link-Based Plugin Intake (proposed R1.3, not yet implemented)
 
 Goal: ingest real canonical plugin metadata by submitting one or more source links (GitHub repo URLs and Moodle plugin-db URLs) and upserting into `plugin_component` plus optional `plugin_release` enrichment.
+
+Implementation status (2026-04-20):
+- The earlier MVP in `directus/extensions/v1/index.js` was never committed and is not in `git reflog` — it got discarded during a working-tree cleanup. Not recoverable.
+- Decision: revive as a **separate Directus extension** `plugin-intake` (same pattern as `catalog-projection-hook` and `v1`) to keep `v1/index.js` from ballooning further. See `docs/04-tasks.md → task41` and `docs/05-quality.md → risk05`.
+- Until then, `POST /v1/portal/plugins/intake-links` returns `404`; the section below stays as a **contract draft** only.
 
 #### Endpoint proposal
 
@@ -874,9 +917,56 @@ Search result and detail optional field:
 
 | Field | Type | Notes |
 |---|---|---|
-| `runbot_demo_id` | string | Key into Runbot's `configs.json`. Consumer deep-links to `https://demo.eledia.ai?demo=<runbot_demo_id>` when non-null. No CTA when null (graceful fallback per feat07). |
+| `runbot_demo_id` | string | Key into Runbot's `configs.json` **or** `runbot_demo_config.slug` (task42). Consumer deep-links to `https://demo.eledia.ai?demo=<runbot_demo_id>` when non-null. No CTA when null (graceful fallback per feat07). |
 
-Always present in the response (key emitted with `null` when the column is missing or unfilled). Runbot remains the authoritative system for available demos; SSOT only stores the link key.
+Always present in the response (key emitted with `null` when the column is missing or unfilled). From Release 1.4 (task42), `runbot_demo_config.slug` replaces `configs.json` as the canonical key; `runbot_demo_id` on `plugin_component`/`product` must match the corresponding `runbot_demo_config.slug`.
+
+### Runbot Demo Config (task42/Release 1.4)
+
+Editorial SSOT for Runbot demo cards. Not part of the public v1 API — consumed directly by the Runbot at `demo.eledia.ai` via its Directus loader.
+
+Schema: `directus/schema/runbot-demo-config-v1.yaml`
+Migration: `directus/scripts/apply_runbot_demo_config.sh`
+Seed: `docs/seeds/runbot_demo_config_seed.json`
+
+Collection: `runbot_demo_config`
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `id` | Integer (serial) | Yes | Primary key |
+| `status` | Enum | Yes | `draft` / `published` / `archived`; Runbot loads only `published` |
+| `sort` | Integer | No | Display order in portal |
+| `date_created` | Timestamp | Yes | Auto |
+| `date_updated` | Timestamp | Yes | Auto |
+| `slug` | String (unique) | Yes | Stable key; matches former configs.json key and `plugin_component.runbot_demo_id` |
+| `name` | String | Yes | Display name for demo card |
+| `description` | Text | No | Short card description |
+| `features` | JSON (string[]) | No | Feature highlights array |
+| `category` | String | No | Internal category key, e.g. `assessment`, `vanilla` |
+| `category_label` | String | No | Human-readable category label |
+| `icon` | String | No | Icon identifier or relative URL |
+| `icon_bg` | String | No | CSS colour for icon background |
+| `visible` | Boolean | Yes | Fast editorial toggle; default `true`; independent of `status` |
+| `github_repo` | String | No | GitHub repo URL for plugin source |
+| `license_url` | String | No | Plugin licence URL |
+| `plugin_src_path` | String | No | Path to plugin root within repo |
+| `plugin_type` | Enum | No | `mod`, `local`, `auth`, … — `null` for vanilla Moodle entries |
+| `plugin_name` | String | No | Moodle folder name, e.g. `leitnerflow` — `null` for vanilla |
+| `snapshot_id` | String | No | Runbot provisioning snapshot identifier |
+| `moodle_version` | String | No | Target Moodle version, e.g. `5.1` |
+| `php_version` | String | No | Target PHP version, e.g. `8.3` |
+| `db` | Enum | No | `pgsql` / `mariadb` / `mysql` |
+| `user_limit` | Integer | No | Max concurrent demo users; `null` = no limit |
+| `plugin_component_id` | M2O `plugin_component` | No | Optional catalog link; `null` allowed for vanilla Moodle entries |
+
+Design invariants:
+- Vanilla Moodle cards are fully supported without a plugin relation: `plugin_*` fields and `plugin_component_id` are all nullable.
+- `status=published` is the Runbot publish gate; `visible=false` is a soft hide (card not shown without changing status).
+- `slug` is the single join key between Directus and the Runbot loader; must match `plugin_component.runbot_demo_id` when a catalog relation exists.
+- Runbot loader env: `CONFIGS_SOURCE=hybrid`, `DIRECTUS_CONFIG_COLLECTION=runbot_demo_config`.
+
+Known demo card slugs (from configs.json migration, Release 1.4):
+`leitnerflow`, `exam2pdf`, `spinningwheel`, `vanilla-4.5`, `vanilla-5.1`, `vanilla-5.1-mariadb`, `vanilla-dev`
 
 ### Plugin Classification (optional, task25/Release 1.2)
 
@@ -951,6 +1041,10 @@ task25 plugin classification (Release 1.2):
 
 Public detail and search may also include: `runbot_demo_id` (string, nullable).
 Consumer behaviour defined in "Runbot Demo Link" section above.
+
+### Release 1.4 Additions (non-breaking, task42)
+
+New internal collection `runbot_demo_config` — not part of the public catalog v1 API. See "Runbot Demo Config" section below.
 
 ## Public Website Foundation
 
@@ -1238,9 +1332,27 @@ Rate limits: moodle.org ≤ 1 req/s, GitHub ≤ 30 req/min unauthenticated / ≤
 
 ## Deployment
 
-Universal deploy flow for local OrbStack environment. Reference: `scripts/deploy-moodle-plugin.sh`.
+### Directus Schema Migrations
 
-### Standard Workflow
+All schema changes go through idempotent SQL scripts — never manually in Studio. After each apply, capture and commit the snapshot.
+
+| Script | Task | Status |
+|---|---|---|
+| `apply_seo_fields.sh` | task24 — SEO columns on `catalog_entry_public` | pending live apply |
+| `apply_classification_fields.sh` | task25 — plugin classification fields | pending live apply |
+| `apply_installation_r12_schema.sh` | task33 — installation digital twin | **applied 2026-04-19** |
+| `apply_runbot_demo_config.sh` | task42 — Runbot demo config collection | pending apply |
+
+Standard apply + snapshot sequence:
+```bash
+bash directus/scripts/<script>.sh [directus-vps]
+bash directus/scripts/capture_snapshot.sh
+# commit the updated directus/schema/catalog-v1.yaml
+```
+
+### Moodle Plugin Deploy (local OrbStack)
+
+Reference: `scripts/deploy-moodle-plugin.sh`.
 
 ```bash
 cd <repo-path>
