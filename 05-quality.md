@@ -1,53 +1,100 @@
-# Quality
+# Qualität
 
 ## Meta
 
-This document tracks system quality.
+Dieses Dokument erfasst die **Qualitätssicht** auf das System.
 
-It contains:
-- bugs (bugXX)
-- test runs (testXX)
+Es enthält:
+- Bugs (`bugXX`) — reproduzierbare Probleme, mit Severity
+- Tests (`testXX`) — Verifikationen, die auf Akzeptanzkriterien aus `01-features.md` verweisen
 
-Use it for:
-- reproducible issues
-- verification
-
-Do NOT include:
-- ideas
-- tasks
+Es enthält **nicht**:
+- Ideen → `01-features.md`
+- Tasks → `04-tasks.md`
 
 ---
 
 ## 🐞 Bugs
 
-### bug01 Popup desync
+### Severity-Skala
 
-Feature: feat01  
-Status: open  
+| Severity | Bedeutung | Reaktion |
+|---|---|---|
+| **S1** | Kritisch — Kernfunktion komplett kaputt, Datenverlust, Sicherheitslücke | Sofortiger Hotfix-Task, blockiert Release |
+| **S2** | Schwer — Feature unbrauchbar oder schwerer UX-Defekt, kein Workaround | Im laufenden Release fixen |
+| **S3** | Mittel — Feature eingeschränkt, Workaround vorhanden | Nächstes Release |
+| **S4** | Gering — kosmetisch, edge-case, minor | Backlog, opportunistisch |
 
-**Description**
-Popup not synchronized with view.
+### Vorlage
 
-**Reproduction**
-1. open popup
-2. navigate
-3. mismatch occurs
+```
+### bugXX Kurztitel
 
-**Expected**
-Popup matches view state.
+Feature:  featXX
+Severity: S1 | S2 | S3 | S4
+Status:   open | in_progress | fixed | wontfix
+Linked:   taskXX (Fix), testXX (Reproduktion)
+
+**Beschreibung**
+Was ist falsch?
+
+**Reproduktion**
+1. ...
+2. ...
+
+**Erwartet**
+Was sollte passieren?
+
+**Tatsächlich**
+Was passiert stattdessen?
+
+**Umgebung** (falls relevant)
+Browser / Version / Konfiguration / Datenstand
+```
 
 ---
 
 ## 🧪 Tests
 
-### test01 Popup sync test
+Jeder Test verweist auf ein Akzeptanzkriterium aus `01-features.md` und macht es prüfbar.
 
-Feature: feat01  
-Result: failed  
+### Vorlage
 
-**Steps**
-- open popup
-- navigate forward
+```
+### testXX Kurztitel
 
-**Outcome**
-desync detected
+Feature:                featXX
+Akzeptanzkriterium:     featXX.ACyy
+Typ:                    manuell | automatisiert
+Status:                 pending | pass | fail
+Letzter Lauf:           YYYY-MM-DD
+
+**Schritte**
+1. ...
+2. ...
+
+**Erwartetes Ergebnis**
+Aus dem Akzeptanzkriterium übernommen oder konkretisiert.
+
+**Beobachtetes Ergebnis** (bei pass/fail)
+Was wurde tatsächlich gesehen?
+
+**Verlinkter Bug** (bei fail)
+bugXX
+```
+
+---
+
+## Regeln
+
+- Jeder Bug bekommt eine Severity — auch S4 ist eine Severity.
+- Jeder Test referenziert ein Akzeptanzkriterium. Ein Test ohne `featXX.ACyy`-Verweis ist verdächtig.
+- Reproduzierbarkeit hat Vorrang vor Vermutung.
+- Fixed-Status nur, wenn der zugehörige `testXX` grün ist.
+
+---
+
+## Grundprinzip
+
+> Bugs sind Teil des normalen Loops, keine Ausnahme.
+> Ein Test ohne Akzeptanzkriterium prüft nichts Verbindliches.
