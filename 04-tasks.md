@@ -19,6 +19,21 @@ Es enthält:
 
 (Unstrukturierter Input erlaubt — wandert nach Triage in `taskXX` oder `qXX`.)
 
+### Idea: Demo-Hub Smoke-Test als GitHub Actions Workflow *(2026-05-01)*
+
+Aktuell läuft der wöchentliche Demo-Hub Smoke-Test über einen Claude-Cron (`a0e1c01a`, Mo 07:23 CEST) — das ist Session-only und auto-expired nach 7 Tagen, also Re-Schedule jeden Montag manuell nötig.
+
+**Idee:** `.github/workflows/demo-smoke.yml` mit `schedule: cron` (z.B. `27 5 * * 1` = Mo 06:27 CEST nach DST), der die `\local_lernhive\demo_data\registry::providers()` Round-Trip-Smoke-Test-Routine direkt auf der Hetzner-VM ausführt (oder im Container der bereits über deploy-hetzner.yml SSH-Zugriff hat).
+
+**Output-Optionen (eine wählen):**
+- GitHub Issue auto-erstellen bei FAIL (wird auto-closed beim nächsten PASS)
+- Slack/Discord-Webhook
+- Status-Badge im README (würde nur grün/rot zeigen, kein Detail)
+
+**Warum nicht jetzt:** der Claude-Cron reicht für den aktuellen Bedarf, und die Setup-Arbeit für Webhook-Routing + Secret-Management ist ungerechtfertigt solange nur 10 Provider zu testen sind.
+
+**Trigger zum Umsetzen:** sobald (a) ein Provider in den letzten 4 Wochen zweimal regressiert ist, oder (b) Demo-Stack auf >2 Umgebungen läuft, oder (c) Customer-Demos pro Woche >2.
+
 ---
 
 ## ❓ Klärung benötigt
