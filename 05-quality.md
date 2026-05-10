@@ -337,6 +337,38 @@ record privacy/file export-delete hardening.
 
 ---
 
+### test49 Odoo Library editorial backend and storage profiles
+Feature:                feat49
+Akzeptanzkriterium:     feat49.AC01, feat49.AC02, feat49.AC03, feat49.AC04
+Typ:                    automatisiert + manuell
+Status:                 pending
+Letzter Lauf:           2026-05-10
+
+**Schritte**
+1. Run Odoo tests for `lernhive_library`:
+   `odoo-bin -d <db> -i lernhive_library --test-enable --test-tags=lernhive_library --stop-after-init`.
+2. Verify model tests for storage-profile default handling, positive TTL,
+   template `sourcecourseid` guard, flavour normalisation and tag handling.
+3. Verify HttpCase feed tests for `entry_type`, active `tags`, and flavour
+   filtering.
+4. Open Odoo UI and confirm Library Items is the primary editorial surface,
+   Releases are under Operations, and `.mbz` upload wording is editorial.
+5. Create two storage profiles, mark one default, upload a release with a
+   profile and confirm feed/download signing uses that profile.
+
+**Erwartetes Ergebnis**
+Odoo Library exposes a coherent editorial workflow and feed contract while
+maintaining backwards compatibility with ContentHub's `sourcecourseid`
+template handoff. Storage profiles support multiple S3-compatible backends,
+including connection testing and per-release selection.
+
+**Beobachtetes Ergebnis**
+Static validation passed locally on 2026-05-10: Python compile for the Odoo
+addon, XML parse with `xmllint`, and `git diff --check`. Full Odoo test DB run
+and browser/UI smoke remain pending.
+
+---
+
 ## Regeln
 
 - Jeder Bug bekommt eine Severity — auch S4 ist eine Severity.

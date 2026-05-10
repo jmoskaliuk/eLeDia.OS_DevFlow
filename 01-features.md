@@ -243,6 +243,72 @@ the right continuation point without re-discovering shipped and pending slices.
 
 ---
 
+### feat49 Odoo Library editorial backend is production-shaped
+
+**Ziel**
+The Odoo Library addon must support a practical editorial workflow for
+maintaining LernHive Library items, releases, feed tags, customer segmentation
+and multiple S3-compatible storage backends.
+
+---
+
+**Verhalten**
+
+- Editors work primarily from Library Items, not from a split Catalog/Versions
+  mental model.
+- Releases remain the underlying version model but are shown as release history
+  on the Library Item and moved to an Operations menu for managers.
+- The .mbz upload action is visible from the Library Item and uses editorial
+  wording: upload file, version, notes, publish.
+- Each entry has an explicit `entry_type` of `library_course` or `template`.
+- Template entries require a `sourcecourseid` so existing ContentHub consumers
+  continue to recognise copy-template handoff without a breaking feed change.
+- Entries can carry editorial tags; the feed emits active tag names as `tags`.
+- Entries can be restricted by customer flavour; global entries remain visible
+  to every valid token.
+- Multiple S3-compatible storage profiles can be configured inside the addon.
+- Each release can point at a storage profile; missing profile falls back to the
+  legacy global S3 system parameters.
+- Managers can test a storage profile connection from the plugin UI.
+
+---
+
+**Akzeptanzkriterien**
+
+- feat49.AC01
+  Given:  An editor opens the Odoo Library addon
+  When:   They manage course content
+  Then:   The primary surface is Library Items with upload and release history,
+          while Releases are treated as an operational view
+
+- feat49.AC02
+  Given:  A Library Item has entry type, tags and customer flavours
+  When:   `/library/feed` is requested with a valid token
+  Then:   The feed emits `entry_type`, active `tags`, and only entries allowed
+          for the token's flavour
+
+- feat49.AC03
+  Given:  Multiple storage profiles are configured
+  When:   A release is uploaded or a download URL is signed
+  Then:   Odoo uses the release's selected storage profile and falls back to
+          legacy global S3 parameters only when no profile is set
+
+- feat49.AC04
+  Given:  An entry is marked as `template`
+  When:   It is saved
+  Then:   Odoo requires a positive `sourcecourseid` to preserve ContentHub's
+          existing template-detection contract
+
+---
+
+**Non-Goals**
+
+- No active webhook from Odoo to customer Moodle in this slice.
+- No breaking change to ContentHub's feed parser or template detection.
+- No migration of existing object files between buckets.
+
+---
+
 ### featXX [Feature-Name]
 
 **Ziel**
