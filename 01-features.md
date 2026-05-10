@@ -77,6 +77,172 @@ Technische, geschäftliche oder konzeptionelle Grenzen.
 
 ---
 
+### feat45 Pathways notifications are non-blocking
+
+**Ziel**
+Pathways lifecycle flows such as demo-data creation, cohort/source unbind,
+allocation and deallocation must not fail because Moodle message delivery or
+the email processor is misconfigured.
+
+---
+
+**Verhalten**
+
+- Notifications are treated as side effects of lifecycle events.
+- If a message processor throws or returns failure, Pathways logs the delivery
+  problem and continues the allocation/deallocation/request flow.
+- Missing or partial Moodle user fields must not trigger developer-debugging
+  exceptions inside notification rendering or `message_send()`.
+
+---
+
+**Akzeptanzkriterien**
+
+- feat45.AC01
+  Given:  A Pathways assignment is deallocated while the Moodle email processor fails
+  When:   The deallocation event observer sends the learner notification
+  Then:   The assignment is still cancelled and the notification failure does not bubble up
+
+- feat45.AC02
+  Given:  Pathways sends a notification to a Moodle user record
+  When:   `fullname()` or Moodle messaging requires optional name/message fields
+  Then:   The sender loads a message-compatible user record and does not trigger missing-field debugging exceptions
+
+---
+
+**Non-Goals**
+
+- Pathways does not repair site-wide mail configuration.
+- Failed notification delivery is not retried by this hotfix.
+
+---
+
+### feat46 Pathways catalogue shows learning contents
+
+**Ziel**
+The catalogue detail page must make it obvious that a Pathway is an ordered
+learning path made of courses and other learning steps, not just a title and a
+self-enrol button.
+
+---
+
+**Verhalten**
+
+- The Pathway catalogue detail page shows the ordered steps that belong to the
+  Pathway.
+- Moodle course steps link directly to their course pages.
+- Required and optional steps are visually distinguished.
+- Empty Pathways show an explicit empty state instead of looking broken.
+
+---
+
+**Akzeptanzkriterien**
+
+- feat46.AC01
+  Given:  A visible Pathway contains Moodle course steps
+  When:   A learner opens the catalogue detail page
+  Then:   The courses are listed in Pathway order before the start/request action
+
+- feat46.AC02
+  Given:  A visible Pathway has no steps
+  When:   A learner opens the catalogue detail page
+  Then:   The page clearly states that no visible steps or courses exist yet
+
+---
+
+### feat47 Customer Portal billing event history
+
+**Ziel**
+Customers must be able to see the current customer-facing status of purchase
+and change requests they triggered from the Moodle Customer Portal.
+
+---
+
+**Verhalten**
+
+- The Customer Portal shows a request history for storage, capacity, and add-on
+  billing events.
+- The history is refreshed from Odoo whenever the page is opened.
+- Only customer-facing fields are shown: request date, event type, product or
+  add-on description, effective date when available, and status.
+- The status vocabulary is exactly `pending`, `in_review`, `scheduled`, and
+  `confirmed`.
+- Odoo internals such as raw payload, error messages, quotations, invoices, or
+  internal object ids are not displayed.
+
+---
+
+**Akzeptanzkriterien**
+
+- feat47.AC01
+  Given:  A customer has triggered billing events in the Customer Portal
+  When:   The customer opens the billing-event history page
+  Then:   The page lists the events with date, type, description, effective date if present, and a customer-facing status badge
+
+- feat47.AC02
+  Given:  Odoo returns no billing events for the installation
+  When:   The customer opens the billing-event history page
+  Then:   The page shows an explicit empty state instead of an empty table
+
+- feat47.AC03
+  Given:  Odoo is temporarily unavailable
+  When:   The customer opens the billing-event history page
+  Then:   The page stays renderable and shows a customer-friendly unavailable hint
+
+---
+
+**Non-Goals**
+
+- No active polling, websocket, edit, or cancel flow.
+- No "current subscription plan" surface.
+- No Moodle-side changes to Odoo's customer-facing status mapping.
+
+---
+
+### feat48 Certify delivery baseline is explicit
+
+**Ziel**
+The Certify plugin status must be explicit enough that the next agent can pick
+the right continuation point without re-discovering shipped and pending slices.
+
+---
+
+**Verhalten**
+
+- Certify documentation states which core certification surfaces are already
+  implemented.
+- Shipped slices include certification templates, assignment/period lifecycle,
+  recertification, cohort source, approval requests, catalogue self-assignment,
+  history import, Report Builder, read-only webservices, custom fields, external
+  record model, and the learning-record aggregate service.
+- Remaining major gaps are named as PDF rendering/dispatch/archive, learner and
+  manager learning-record UI, and external-record privacy/file export-delete
+  hardening.
+- The UX/UI implementation remains unchanged during this documentation pass.
+
+---
+
+**Akzeptanzkriterien**
+
+- feat48.AC01
+  Given:  A developer opens the Certify plugin docs
+  When:   They review feature, task, developer, and quality docs
+  Then:   They can distinguish shipped Certify slices from the remaining major gaps
+
+- feat48.AC02
+  Given:  The Certify docs are updated
+  When:   The change is reviewed
+  Then:   No customer-facing UX/UI implementation is changed by the documentation pass
+
+---
+
+**Non-Goals**
+
+- No implementation of PDF rendering or learning-record UI in this task.
+- No redesign of existing Certify Moodle pages.
+
+---
+
 ### featXX [Feature-Name]
 
 **Ziel**

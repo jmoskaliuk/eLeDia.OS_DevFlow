@@ -106,6 +106,37 @@ Siehe oben
 
 ---
 
+### bug44 Pathways demo provider blocked by email message processor failure
+Feature:  feat45
+Severity: S1
+Status:   fixed
+Linked:   task45, test45
+
+**Beschreibung**
+Pathways notification observers treated Moodle message delivery failures as
+fatal event-observer failures. During demo-data cleanup, cohort unbind triggered
+`on_allocation_deallocated_notify`, and a failing email message processor
+aborted the whole demo provider.
+
+**Reproduktion**
+1. Run the Pathways demo-data provider on an environment where the Moodle email
+   message processor fails.
+2. Trigger demo cleanup / cohort unbind.
+3. Observe the deallocation notification observer.
+
+**Erwartet**
+Notification delivery failures are logged, but demo-data cleanup and
+deallocation continue.
+
+**Tatsächlich**
+The demo provider failed with:
+`local_lernhive_pathways deallocation notification failed: Error calling message processor email`
+
+**Umgebung**
+Moodle developer debugging enabled; Pathways notifications active.
+
+---
+
 ## 🧪 Tests
 
 Jeder Test verweist auf ein Akzeptanzkriterium aus `01-features.md` und macht es prüfbar.
@@ -194,6 +225,115 @@ Letzter Lauf:           2026-05-02
 - Library-Karten springen nicht in der Höhe
 - Suche/Filter reduzieren die Karte sichtbar ohne Layoutbruch
 - Import-Bestätigung ist eine ContentHub-Fläche, kein nackter Moodle-Formblock
+
+---
+
+### test45 Pathways notification delivery failure does not abort deallocation
+Feature:                feat45
+Akzeptanzkriterium:     feat45.AC01
+Typ:                    automatisiert + manuell
+Status:                 pending
+Letzter Lauf:           2026-05-03
+
+**Schritte**
+1. Run `notification_sender_test::test_message_processor_failure_is_silent`.
+2. Run `notification_observer_test::test_deallocate_survives_message_processor_failure`.
+3. After deploy, run the Pathways demo-data provider and demo cleanup.
+
+**Erwartetes Ergebnis**
+The sender returns `false` instead of throwing when message delivery fails, and
+`assignment_service::deallocate()` still leaves the assignment in
+`cancelled` state.
+
+**Beobachtetes Ergebnis**
+Implementation and regression tests were merged via PR #111 on 2026-05-03
+(`e7171b85`). Static validation is green (`php -l`, Moodle phpcs,
+`git diff --check`). Full PHPUnit execution and post-deploy demo verification
+are pending because local Docker/OrbStack is not reachable.
+
+**Verlinkter Bug**
+bug44
+
+---
+
+### test46 Pathways catalogue detail shows included courses/steps
+Feature:                feat46
+Akzeptanzkriterium:     feat46.AC01, feat46.AC02
+Typ:                    automatisiert
+Status:                 passed
+Letzter Lauf:           2026-05-03
+
+**Schritte**
+1. Run `Test on Hetzner` with suite `behat`.
+2. Use tag expression `@local_lernhive_pathways`.
+3. Verify catalogue detail with two course steps.
+4. Verify catalogue detail empty-state.
+5. Verify Pathway edit form renders including scheduling help section and save button.
+
+**Erwartetes Ergebnis**
+Learners can see what belongs to the Pathway before starting/requesting it.
+Course steps link to Moodle course pages; empty Pathways clearly say that no
+steps/courses exist yet.
+
+**Beobachtetes Ergebnis**
+Implementation merged in PR #113 (`626703e5`). Behat coverage merged in PR #114
+and corrected in PR #123. GitHub Actions run `25281212353` passed on
+2026-05-03 for `@local_lernhive_pathways` on head `6ac46ee2`.
+
+---
+
+### test47 Customer Portal billing-event history
+Feature:                feat47
+Akzeptanzkriterium:     feat47.AC01, feat47.AC02, feat47.AC03
+Typ:                    automatisiert + manuell
+Status:                 pending
+Letzter Lauf:           2026-05-10
+
+**Schritte**
+1. Run `odoo_billing_service_test::test_get_billing_event_history_returns_customer_timeline`.
+2. Run `odoo_billing_service_test::test_get_billing_event_history_requires_config`.
+3. Open `/local/customerportal/billing-events.php` with Odoo test data.
+4. Verify dashboard link, empty state, unavailable state and the four status
+   badge labels.
+
+**Erwartetes Ergebnis**
+The billing-event history posts to
+`/lernhive/customerportal/v1/billing-event-history` with
+`{installation_id, limit}` and renders only customer-facing fields. Empty and
+unavailable states remain readable.
+
+**Beobachtetes Ergebnis**
+Implementation committed in `1f8cd317` on 2026-05-10. Static validation is
+green (`php -l`, UI boundary lint, `git diff --check`). Full local PHPUnit and
+browser screenshot are pending because `playbooks/test.local.env` is missing.
+
+---
+
+### test48 Certify documentation reflects shipped and pending slices
+Feature:                feat48
+Akzeptanzkriterium:     feat48.AC01, feat48.AC02
+Typ:                    manuell
+Status:                 pass
+Letzter Lauf:           2026-05-10
+
+**Schritte**
+1. Inspect `plugins/local_lernhive_certify` code surfaces, services, tests and
+   docs.
+2. Update plugin docs to mark shipped, partial and pending LH-CRT slices.
+3. Verify that the change is documentation-only for Certify and does not alter
+   customer-facing UX/UI code.
+
+**Erwartetes Ergebnis**
+The next implementation step is clear: PDF certificate rendering/dispatch or
+learning-record UI/privacy hardening. No Certify runtime code changes are part
+of this documentation pass.
+
+**Beobachtetes Ergebnis**
+Plugin docs now state that the core certification lifecycle, catalogue,
+approval, history import, Report Builder, webservices, custom fields, external
+record model and learning-record aggregate service exist. Known gaps are PDF
+rendering/dispatch/archive, learner/manager learning-record UI and external
+record privacy/file export-delete hardening.
 
 ---
 

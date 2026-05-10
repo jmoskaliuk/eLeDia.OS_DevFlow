@@ -109,6 +109,147 @@ Alle Einträge:
 
 ---
 
+### Pathways non-blocking notifications (`feat45`)
+
+**Überblick**
+Pathways notifications are implemented as non-critical side effects. Lifecycle
+operations such as allocation, deallocation, approval decisions and demo/source
+cleanup must continue even when Moodle message delivery fails.
+
+---
+
+**Architektur**
+
+- `local_lernhive_pathways\notification\sender` is the single notification
+  dispatch boundary.
+- All direct `message_send()` calls in the sender go through a private
+  fail-closed dispatcher.
+- Notification event observers catch unexpected notification failures and log
+  them without using Moodle developer `debugging()`, because developer
+  debugging can itself escalate to an exception in strict environments.
+
+---
+
+**Komponenten**
+
+- `classes/notification/sender.php` → builds template context, loads full
+  message-compatible user records and dispatches notifications.
+- `classes/observer.php` → observes Pathways lifecycle events and invokes the
+  sender without allowing notification failures to abort upstream flows.
+- `tests/notification_sender_test.php` → covers message-processor failure at
+  the sender boundary.
+- `tests/notification_observer_test.php` → covers deallocation continuing when
+  message delivery fails.
+
+---
+
+**Datenfluss**
+
+1. A Pathways lifecycle operation fires an event.
+2. The observer calls the notification sender.
+3. The sender loads users via `core_user\fields::for_name()` plus message
+   recipient fields such as `username` and `emailstop`.
+4. The sender calls the fail-closed dispatcher.
+5. On processor failure, the dispatcher logs via `error_log()` and returns
+   `false`; the lifecycle flow continues.
+
+---
+
+**Constraints / Einschränkungen**
+
+- Failed delivery is logged but not retried.
+- Full PHPUnit verification is pending locally while Docker/OrbStack is not
+  reachable.
+
+---
+
+### Pathways catalogue contents (`feat46`)
+
+**Überblick**
+The catalogue detail page now renders the ordered Pathway contents before the
+claim/request action block, so learners can see which courses and learning
+steps belong to the Pathway before joining it.
+
+---
+
+**Architektur**
+
+- `catalogue/pathway.php` loads steps via `step_service::list_for_pathway()`.
+- Course-type steps collect their `courseid` values and resolve course names
+  from Moodle's `{course}` table in one query.
+- The page renders each step with its type label plus required/optional badge.
+- Course steps link to `/course/view.php?id=...`; missing course references are
+  shown as missing instead of causing a fatal error.
+
+---
+
+**Komponenten**
+
+- `catalogue/pathway.php` → renders title/description, contents, and action
+  block.
+- `classes/service/step_service.php` → supplies ordered step rows.
+- `lang/en|de/local_lernhive_pathways.php` → catalogue content labels and empty
+  state strings.
+
+---
+
+### Customer Portal billing event history (`feat47`)
+
+**Überblick**
+The Moodle Customer Portal exposes a read-only customer-facing timeline for
+Odoo billing events. It uses Odoo as the source of truth and refreshes the
+history on each page load.
+
+---
+
+**Architektur**
+
+- `local_customerportal\local\odoo_billing_service::get_billing_event_history()`
+  posts to `/lernhive/customerportal/v1/billing-event-history`.
+- The existing `odoo_registry_client` supplies the `X-LernHive-Portal-Key`
+  authentication header.
+- The service normalises only the public response fields. Odoo internals such
+  as raw payload, quote ids, invoice ids or error messages are intentionally
+  ignored.
+- `/local/customerportal/billing-events.php` renders the page inside the
+  existing Plugin Shell.
+
+---
+
+**Komponenten**
+
+- `plugins/local_customerportal/billing-events.php` → page controller.
+- `templates/billing_event_history.mustache` → table, empty state and status
+  badges.
+- `templates/dashboard.mustache` → dashboard link to the history page.
+- `classes/local/page_setup.php` → shared `url_billing_events` URL.
+- `tests/odoo_billing_service_test.php` → endpoint path, payload and mapping
+  regression coverage.
+
+---
+
+**Datenfluss**
+
+1. Customer opens `/local/customerportal/billing-events.php`.
+2. Moodle posts `{installation_id, limit}` to Odoo.
+3. Odoo returns up to 50 customer-facing billing-event rows.
+4. Moodle maps event type/status labels and renders the table.
+5. On missing config or temporary Odoo failure, the page renders with a warning
+   and empty history state.
+
+---
+
+**Constraints / Einschränkungen**
+
+- No Odoo addon code is changed by this feature.
+- Status values are fixed to `pending`, `in_review`, `scheduled`, `confirmed`.
+- The first UI cut shows `effective_date` as its own table column when Odoo
+  provides it.
+- Full PHPUnit execution is pending locally because `playbooks/test.local.env`
+  is missing.
+
+---
+
 ## Feature-Vorlage
 
 ---

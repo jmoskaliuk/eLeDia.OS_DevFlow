@@ -103,6 +103,44 @@ Alle Einträge:
 
 ---
 
+### Customer Portal Anfrageverlauf (`feat47`)
+
+**Was tut es?**
+Der Anfrageverlauf zeigt Kundinnen und Kunden, welchen Stand ihre Kauf- und
+Aenderungsanfragen haben. Dazu gehoeren Speichererweiterungen, Wechsel der
+Kapazitaetsstufe und Add-on-Anfragen.
+
+---
+
+**Wann nutze ich es?**
+Wenn nach dem Ausloesen einer Anfrage sichtbar sein soll, ob die Anfrage noch
+offen ist, geprueft wird, geplant ist oder bereits bestaetigt wurde.
+
+---
+
+**Bedienung**
+
+1. Customer Portal oeffnen.
+2. Auf dem Dashboard die Kachel "Request history" / "Anfrageverlauf" oeffnen.
+3. Die Liste der bisherigen Anfragen pruefen.
+
+---
+
+**Erwartetes Ergebnis**
+
+Jede Anfrage erscheint als Tabellenzeile mit Datum, Anfragetyp, Beschreibung,
+optionalem Wirksamkeitsdatum und Status-Badge.
+
+---
+
+**Einschraenkungen / Hinweise**
+
+- Die Seite aktualisiert sich beim Oeffnen neu aus Odoo.
+- Es gibt keinen "Jetzt pruefen"-Button und kein Live-Polling.
+- Eine Anfrage kann in Moodle nicht zurueckgezogen oder bearbeitet werden.
+
+---
+
 ## Feature-Vorlage
 
 ---

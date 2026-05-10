@@ -96,17 +96,176 @@ Wie erkennt man Fertigstellung?
 
 Tasks, an denen aktuell gearbeitet wird. Hier landen Tasks, sobald die KI mit `#implement` startet.
 
+### task45 Pathways notification failures must not block demo/source cleanup
+Status:    in_progress
+Feature:   feat45
+Priorität: P0
+Linked:    bug44, test45
+
+**Ziel**
+Pathways demo-data creation and cohort/source cleanup must continue even when
+Moodle's email message processor fails during allocation/deallocation
+notifications.
+
+**Schritte**
+1. Route all Pathways `message_send()` calls through one fail-closed dispatcher.
+2. Stop notification observers from logging via developer `debugging()` in
+   catch blocks that run inside lifecycle events.
+3. Add regression tests for sender failure and deallocation survival.
+4. Bump Pathways to `2026050307 / 1.0.13`.
+5. Run syntax/style checks, open PR and merge the hotfix.
+
+**Erwartetes Ergebnis**
+The demo provider no longer fails with `Error calling message processor email`
+during cohort unbind/deallocation; the notification failure is logged and the
+assignment cleanup continues.
+
+**Aktueller Stand**
+- Implemented in branch `codex/pathways-notification-nonblocking`.
+- PR #111 merged on 2026-05-03: https://github.com/jmoskaliuk/lernhive/pull/111
+- Merge commit: `e7171b85faf4a10b62140398646e7d0aff29a827`
+- PR #112 merged on 2026-05-03: https://github.com/jmoskaliuk/lernhive/pull/112
+- Help-string blocker fixed in `2026050308 / 1.0.14`.
+- Local runtime synced to `../runtime/moodle52/moodle/public/local/lernhive_pathways/`.
+- GitHub check `Verify plugin UI boundary` passed.
+- PHPUnit is pending because local Docker/OrbStack is not reachable.
+
+**Done-Checkliste** (vor Verschieben nach ✅ Done)
+- [x] 01-features.md aktualisiert
+- [ ] 02-user-doc.md aktualisiert (nicht erforderlich, keine UX-Änderung)
+- [x] 03-dev-doc.md aktualisiert
+- [ ] test45 in 05-quality.md grün
+- [ ] PO Sign-off
+
 ---
 
 ## 🔎 Verifikation nach Deploy
 
 Verifikations-Items für die letzte Auslieferung. Nach erfolgreicher Verifikation → in den jeweiligen Task „PO Sign-off" abhaken und nach „✅ Done" verschieben.
 
+### verify45 Pathways demo provider after notification hotfix
+Linked: task45, bug44, test45
+Status: pending
+
+**Schritte**
+1. Deploy current `main` including PR #111, #112 and #113.
+2. Moodle upgrade for `local_lernhive_pathways` auf `1.0.14` ausführen.
+3. Pathways Demo-Daten-Provider starten.
+4. Cohort unbind / Demo cleanup ausführen.
+5. Pathway edit form öffnen and verify no missing help-string debugging occurs.
+
+**Erwartet**
+Keine Exception aus `on_allocation_deallocated_notify`; ein fehlerhafter
+E-Mail-Processor blockiert die Demo-Daten nicht mehr. Die Pathway-Bearbeitung
+scheitert nicht mehr an `form_scheduling_dsl`.
+
+### task46 Pathways catalogue detail shows included courses/steps
+Status:    done
+Feature:   feat46
+Priorität: P0
+Linked:    test46
+
+**Ziel**
+Learners opening a Pathway in the catalogue must see the ordered courses/steps
+that make up the Pathway before deciding whether to start/request it.
+
+**Schritte**
+1. Load ordered steps on `catalogue/pathway.php`.
+2. Resolve Moodle course steps and link them to `course/view.php`.
+3. Show required/optional badges and an empty-state for Pathways without steps.
+4. Keep the repo-wide UI boundary check green.
+
+**Aktueller Stand**
+- PR #113 merged on 2026-05-03: https://github.com/jmoskaliuk/lernhive/pull/113
+- Merge commit: `626703e535f37712e55e8b81c43e171ac86a933a`
+- GitHub check `Verify plugin UI boundary` passed.
+- Local runtime synced to `../runtime/moodle52/moodle/public/local/lernhive_pathways/`.
+- PR #114 added Behat coverage for catalogue detail, empty-state and edit-form rendering.
+- PR #123 corrected the edit-form Behat assertion to check the submit button semantically.
+- GitHub Actions run `25281212353` passed for `@local_lernhive_pathways` on 2026-05-03.
+
+**Done-Checkliste** (vor Verschieben nach ✅ Done)
+- [x] 01-features.md aktualisiert
+- [ ] 02-user-doc.md aktualisiert
+- [x] 03-dev-doc.md aktualisiert
+- [x] test46 in 05-quality.md grün
+- [ ] PO Sign-off
+
 ---
 
 ## ✅ Done
 
 Erledigte Tasks. Nicht löschen — sie sind die Historie der Entscheidungen.
+
+### task47 Customer Portal billing-event history
+Status:    done
+Feature:   feat47
+Priorität: P1
+Linked:    test47
+
+**Ziel**
+Customers can see the status of billing events triggered in Moodle without
+clicking a manual refresh button.
+
+**Schritte**
+1. Extend `local_customerportal\local\odoo_billing_service` with the
+   `/billing-event-history` read call.
+2. Add `/local/customerportal/billing-events.php`.
+3. Render the history in a Customer Portal Mustache template using existing
+   table/card/badge patterns.
+4. Add dashboard link, language strings and PHPUnit mapping coverage.
+5. Keep Odoo code and status mapping unchanged.
+
+**Erwartetes Ergebnis**
+The dashboard links to a request-history page that refreshes from Odoo on page
+load and renders `pending`, `in_review`, `scheduled`, and `confirmed` statuses
+with customer-facing labels.
+
+**Aktueller Stand**
+- Implemented in repo commit `1f8cd317` on 2026-05-10.
+- Moodle plugin bumped to `local_customerportal` `2026051002 / 0.2.33`.
+- Static checks passed: `php -l`, UI boundary lint, `git diff --check`.
+- Full local PHPUnit is blocked because `playbooks/test.local.env` is missing.
+
+**Done-Checkliste**
+- [x] 01-features.md aktualisiert
+- [x] 02-user-doc.md aktualisiert
+- [x] 03-dev-doc.md aktualisiert
+- [ ] test47 in 05-quality.md grün
+- [ ] PO Sign-off
+
+### task48 Certify status baseline documentation
+Status:    done
+Feature:   feat48
+Priorität: P2
+Linked:    test48
+
+**Ziel**
+Align Certify plugin docs and global DevFlow with the actual implementation
+status so the next work can start from PDF/dispatch or learning-record UI
+instead of re-triaging shipped slices.
+
+**Schritte**
+1. Review `plugins/local_lernhive_certify` docs and implementation surfaces.
+2. Mark shipped/partial/pending LH-CRT slices in the plugin task backlog.
+3. Update developer and quality docs for the learning-record aggregate,
+   external records, and remaining gaps.
+4. Add DevFlow feature/task/test references without changing Certify UX/UI code.
+
+**Erwartetes Ergebnis**
+Certify documentation clearly separates shipped core operations from pending
+PDF certificate and learning-record UI work.
+
+**Aktueller Stand**
+- Documentation-only update on 2026-05-10.
+- Certify plugin code and UX/UI implementation are unchanged.
+
+**Done-Checkliste**
+- [x] 01-features.md aktualisiert
+- [x] 02-user-doc.md aktualisiert (nicht erforderlich, keine UX-Änderung)
+- [x] 03-dev-doc.md aktualisiert
+- [x] test48 in 05-quality.md erfasst
+- [ ] PO Sign-off
 
 ---
 
