@@ -205,8 +205,8 @@ history on each page load.
 **Architektur**
 
 - `local_customerportal\local\odoo_billing_service::get_billing_event_history()`
-  posts to `/lernhive/customerportal/v1/billing-event-history`.
-- The existing `odoo_registry_client` supplies the `X-LernHive-Portal-Key`
+  posts to `/eledia/maas/v1/billing-event-history`.
+- The existing `odoo_registry_client` supplies the `X-eLeDia-MaaS-Key`
   authentication header.
 - The service normalises only the public response fields. Odoo internals such
   as raw payload, quote ids, invoice ids or error messages are intentionally

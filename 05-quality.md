@@ -298,7 +298,7 @@ Letzter Lauf:           2026-05-10
 
 **Erwartetes Ergebnis**
 The billing-event history posts to
-`/lernhive/customerportal/v1/billing-event-history` with
+`/eledia/maas/v1/billing-event-history` with
 `{installation_id, limit}` and renders only customer-facing fields. Empty and
 unavailable states remain readable.
 
@@ -345,8 +345,8 @@ Status:                 pending
 Letzter Lauf:           2026-05-10
 
 **Schritte**
-1. Run Odoo tests for `lernhive_library`:
-   `odoo-bin -d <db> -i lernhive_library --test-enable --test-tags=lernhive_library --stop-after-init`.
+1. Run Odoo tests for `eledia_library`:
+   `odoo-bin -d <db> -i eledia_library --test-enable --test-tags=eledia_library --stop-after-init`.
 2. Verify model tests for storage-profile default handling, positive TTL,
    template `sourcecourseid` guard, flavour normalisation and tag handling.
 3. Verify HttpCase feed tests for `entry_type`, active `tags`, and flavour

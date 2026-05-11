@@ -283,7 +283,7 @@ and multiple S3-compatible storage backends.
 
 - feat49.AC02
   Given:  A Library Item has entry type, tags and customer flavours
-  When:   `/library/feed` is requested with a valid token
+  When:   `/eledia/library/v1/feed` is requested with a valid token
   Then:   The feed emits `entry_type`, active `tags`, and only entries allowed
           for the token's flavour
 

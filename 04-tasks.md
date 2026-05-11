@@ -274,17 +274,17 @@ Priorität: P1
 Linked:    test49
 
 **Ziel**
-Make `integrations/odoo/addons/lernhive_library` usable as an editorial
+Make `jmoskaliuk/eLeDia_Library` usable as an editorial
 control plane: Library Items first, clear upload/release wording, explicit
 template vs library-course type, feed tags, customer flavour segmentation and
 multi-storage support.
 
 **Schritte**
-1. Add explicit `entry_type` to `lernhive.library.entry`.
-2. Add `lernhive.library.tag` and emit active tag names in `/library/feed`.
-3. Add `lernhive.library.flavour`, entry restrictions and token flavour
+1. Add explicit `entry_type` to `eledia.library.entry`.
+2. Add `eledia.library.tag` and emit active tag names in `/eledia/library/v1/feed`.
+3. Add `eledia.library.flavour`, entry restrictions and token flavour
    filtering.
-4. Replace global-only S3 handling with `lernhive.library.storage.profile`
+4. Replace global-only S3 handling with `eledia.library.storage.profile`
    while keeping legacy System Parameter fallback.
 5. Wire `storage_profile_id` into releases, upload wizard, feed presign and
    download redirect.
@@ -300,7 +300,7 @@ compatible. Multiple S3-compatible backends can be configured and selected per
 release.
 
 **Aktueller Stand**
-- Implemented locally on 2026-05-10 in `integrations/odoo/addons/lernhive_library`.
+- Implemented in the separate source repository `jmoskaliuk/eLeDia_Library`.
 - Static validation passed: Python compile, XML parse and `git diff --check`.
 - Full Odoo test suite is pending because no local Odoo test database was run.
 - Browser/UI smoke on Odoo is pending.
@@ -349,7 +349,7 @@ mit Test-Skelett im owning Plugin starten.
 **Ergebnis:**
 - Library-PHPUnit-Tests liegen unter `plugins/local_lernhive_contenthub/tests/library/`.
 - Library-Behat-Tests liegen unter `plugins/local_lernhive_contenthub/tests/behat/`.
-- Alte Plugin-Ordner `local_lernhive_copy` und `local_lernhive_library` sind entfernt.
+- Alte Plugin-Ordner `local_lernhive_copy` und `local_eledia_library` sind entfernt.
 - Der einzige DevFlow für Copy, Template und Library ist
   `plugins/local_lernhive_contenthub/docs/`.
 
