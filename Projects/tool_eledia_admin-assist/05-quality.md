@@ -4,7 +4,7 @@
 
 ### test01 MVP-Installation und Provider
 Linked: feat01 / task01  
-Status: pending
+Status: passed
 
 **Automatische Checks**
 
@@ -13,6 +13,12 @@ Status: pending
 - `moodle-plugin-ci phpdoc --max-warnings 0`
 - `moodle-plugin-ci validate`
 - `moodle-plugin-ci phpunit --fail-on-warning`
+
+**Ergebnis**
+
+- GitHub Actions Run `27868065445` grün am 2026-06-20.
+- Matrix: `MOODLE_405_STABLE` und `MOODLE_500_STABLE`, PHP 8.3, PostgreSQL.
+- Checks grün: install, phplint, phpcs, phpdoc, validate, phpunit.
 
 **Manuelle Verifikation**
 
@@ -32,4 +38,3 @@ Keine bekannten Bugs.
 - Moodle 4.5-Kompatibilität begrenzt den Einsatz von Moodle 5.2 React/MDS.
 - Einige Core-Adminseiten können je nach installierten Plugins oder Berechtigungen anders erreichbar sein.
 - Der MVP bewertet viele Punkte noch als Schnellzugriff statt als echten Zustand.
-

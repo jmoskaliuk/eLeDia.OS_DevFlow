@@ -46,7 +46,7 @@ Das Plugin kann unter `admin/tool/adminassist` installiert werden und zeigt eine
 - [x] `01-features.md` aktualisiert
 - [x] `02-user-doc.md` aktualisiert
 - [x] `03-dev-doc.md` aktualisiert
-- [ ] `test01` in `05-quality.md` grün
+- [x] `test01` in `05-quality.md` grün
 - [ ] PO Sign-off
 
 ### task02 Provider-Architektur für echte Checks entwerfen
@@ -71,4 +71,3 @@ Ein Admin kann die Übersicht öffnen; ein nicht berechtigter Nutzer wird blocki
 ## Done
 
 Noch keine Tasks mit PO-Sign-off abgeschlossen.
-
