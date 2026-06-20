@@ -123,6 +123,12 @@ eLeDia.OS_DevFlow/
 └── README.md            (dieses Dokument)
 ```
 
+## Projekt-DevFlows
+
+Konkrete Projekte können die fünf Perspektiven als eigenen Projektordner spiegeln:
+
+- `Projects/tool_eledia_admin-assist/` — Moodle Admin-Tool für zentrale Admin-Todos und Schnellzugriffe
+
 ---
 
 ## Einstieg für eine neue Session
