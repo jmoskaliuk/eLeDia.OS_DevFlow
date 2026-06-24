@@ -369,6 +369,44 @@ and browser/UI smoke remain pending.
 
 ---
 
+### test50 LernHive Copilot-Findings follow-up
+Feature:                feat50
+Akzeptanzkriterium:     feat50.AC01, feat50.AC02, feat50.AC03
+Typ:                    automatisiert + manuell
+Status:                 pending
+Letzter Lauf:           2026-06-23
+
+**Schritte**
+1. Verify that the P1 findings from `task50` have dedicated fixes or documented
+   wontfix decisions:
+   - Certify Cohort-Observer uses Moodle event IDs correctly.
+   - Certify observer/service does not fatal during install/upgrade or
+     partial-schema states.
+   - Pathways collaboration activity lookup does not depend on an empty module
+     name.
+2. Verify that the P2 findings have either landed or been split into follow-up
+   tasks:
+   - Orgchart tools URL/navigation consistency.
+   - `local_lernhive` hook dead-code/performance cleanup.
+   - Certify product/RFP documentation version sync.
+3. Verify that the P3 findings have either landed or remain explicitly parked:
+   - Course-format lang guards.
+   - Course-format Moodle baseline metadata.
+   - Pathways help-string examples without angle-bracket placeholders.
+4. For each implementation PR, run relevant PHP lint, PHPUnit/Behat coverage
+   where available, `git diff --check`, and GitHub checks.
+
+**Erwartetes Ergebnis**
+The closed-PR Copilot audit has no unresolved high-priority runtime or upgrade
+risks. Any remaining low-priority conventions are explicitly tracked instead
+of staying hidden in old PR comments.
+
+**Beobachtetes Ergebnis**
+Audit findings were documented on 2026-06-23 in `04-tasks.md` as `task50`.
+Implementation fixes are still pending.
+
+---
+
 ## Regeln
 
 - Jeder Bug bekommt eine Severity — auch S4 ist eine Severity.

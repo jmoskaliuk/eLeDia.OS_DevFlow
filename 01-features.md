@@ -309,6 +309,57 @@ and multiple S3-compatible storage backends.
 
 ---
 
+### feat50 LernHive closed-PR review debt is visible and actionable
+
+**Ziel**
+Findings from closed GitHub PR review comments must not remain hidden in old
+Copilot threads. Runtime, upgrade and documentation risks discovered during the
+2026-06-23 audit should be visible in DevFlow and actionable through small
+follow-up PRs.
+
+---
+
+**Verhalten**
+
+- Copilot findings from closed `jmoskaliuk/lernhive` PRs are recorded as a
+  DevFlow task.
+- High-priority runtime and upgrade risks are separated from convention and
+  metadata cleanup.
+- Each finding has an expected next action: fix, split into a narrower task,
+  or explicitly mark as wontfix.
+- Verification requires code checks for implementation PRs, not only a
+  documentation entry.
+
+---
+
+**Akzeptanzkriterien**
+
+- feat50.AC01
+  Given:  A closed-PR Copilot audit finds unresolved P1 issues
+  When:   The audit is written into DevFlow
+  Then:   Each P1 issue has a concrete affected plugin, risk and next action
+
+- feat50.AC02
+  Given:  Lower-priority review findings exist
+  When:   They are triaged
+  Then:   They are either fixed, split into follow-up tasks or explicitly parked
+
+- feat50.AC03
+  Given:  A follow-up PR claims to resolve a finding
+  When:   It is reviewed
+  Then:   Relevant lint, PHPUnit/Behat coverage where available, `git diff --check`
+          and GitHub checks are documented
+
+---
+
+**Non-Goals**
+
+- No product UX change is implied by documenting the audit.
+- No automatic acceptance of Copilot suggestions without human/code review.
+- No release is triggered by this documentation entry alone.
+
+---
+
 ### featXX [Feature-Name]
 
 **Ziel**

@@ -90,6 +90,76 @@ Wie erkennt man Fertigstellung?
 | **P2** | wichtig, aber nicht blockierend |
 | **P3** | nice-to-have, Backlog |
 
+### task50 LernHive Copilot-Findings aus geschlossenen PRs triagieren
+Status:    open
+Feature:   feat50
+Priorität: P1
+Linked:    test50
+
+**Ziel**
+Die offenen Punkte aus den Copilot-Kommentaren der geschlossenen
+`jmoskaliuk/lernhive` PRs werden nachvollziehbar triagiert und in konkrete
+Fix-PRs überführt. Der Audit lief am 2026-06-23 gegen den aktuellen
+`main`-Stand des LernHive-Repos.
+
+**Findings**
+1. `local_lernhive_certify`: Cohort-Observer liest die Cohort-ID weiterhin aus
+   `$event->other['cohortid']`; Moodle Cohort-Events sollten `$event->objectid`
+   verwenden. Regressionstest ergänzen.
+2. `local_lernhive_certify`: Cohort-Observer ruft `source_cohort_service`
+   direkt auf; der Service fragt Source-Cohort-Tabellen ohne
+   Install-/Upgrade-Guard ab. Table-Guard oder Observer-`try/catch` ergänzen.
+3. `local_lernhive_pathways`: Collaboration-Activity-Lookup nutzt
+   `get_coursemodule_from_id('', $cmid, ...)`; leeren Modulnamen durch robusten
+   Lookup ersetzen.
+4. `local_lernhive_orgchart`: `tools.php` setzt die Page-URL auf `manage.php`,
+   und der aktive Section-Key `frameworks` hat keinen passenden
+   `section_nav`-Eintrag. URL, Settings-Link und Nav-Item angleichen.
+5. `local_lernhive`: Hook-Callback enthält unerreichbare
+   Nicht-LernHive-Theme-Branches nach frühem Theme-Return; günstige Exits vor
+   DB-Lookup ziehen und Dead Code entfernen.
+6. `local_lernhive_certify` / Produktdocs: Code steht bei Release `0.5.18`,
+   Produkt- und RFP-Dokumente nennen noch ältere `0.3.4`-Shipping-Stände.
+   `product/02-plugin-map.md`, `product/12-feature-catalogue.md` und
+   `product/webseite/rfp-features.md` synchronisieren.
+7. `format_lernhive_community` und `format_lernhive_snack`: mindestens die
+   englischen Lang-Files haben keinen `defined('MOODLE_INTERNAL') || die();`
+   Guard. Lang-Files prüfen und Guards ergänzen.
+8. `format_lernhive_community` und `format_lernhive_snack`: `version.php`
+   referenziert Moodle 4.4, während die LernHive-Baseline offenbar 4.5+ ist.
+   Supported baseline klären und Requires-Werte angleichen.
+9. `local_lernhive_pathways`: Help-Strings verwenden `<number>` / `<Nummer>`;
+   Moodle-Output kann das als HTML-ähnliche Tags behandeln. Beispiele auf
+   konkrete Werte wie `id=123` ändern.
+
+**Bereits geprüft**
+- `local_lernhive_reporting` PR #180 wirkt im aktuellen Code weitgehend
+  erledigt: suspendierte Nutzer werden ausgeschlossen, Course-Scoping ist
+  vorhanden und Recordsets werden mit `finally` geschlossen.
+- Die Course-Format-Scaffolds enthalten inzwischen `lib.php`, Privacy Provider
+  und Tests; offen bleiben vor allem Guards, Requires-Metadaten und finale
+  Format-Verifikation.
+
+**Schritte**
+1. Aus den P1-Findings separate Fix-PRs für Certify und Pathways erstellen.
+2. P2-Findings für Orgchart, Hook-Cleanup und Certify-Doku in einem oder zwei
+   kleinen PRs nachziehen.
+3. P3-Findings als Konventions-/Metadaten-Cleanup bündeln.
+4. Nach jedem PR PHP-Lint, relevante PHPUnit/Behat-Tests und GitHub Checks
+   dokumentieren.
+
+**Erwartetes Ergebnis**
+Alle offenen Copilot-Reviewpunkte sind entweder gefixt, bewusst verworfen oder
+als niedrig priorisierte Folgearbeit dokumentiert. Die wichtigsten Laufzeit-
+und Upgrade-Risiken in Certify und Pathways sind behoben.
+
+**Done-Checkliste**
+- [ ] P1-Findings behoben oder begründet verworfen
+- [ ] P2-Findings behoben oder in eigene Tasks ausgelagert
+- [ ] P3-Findings behoben oder als Cleanup-Backlog bestätigt
+- [x] test50 in 05-quality.md ergänzt
+- [ ] PO Sign-off
+
 ---
 
 ## 🔧 In Progress
