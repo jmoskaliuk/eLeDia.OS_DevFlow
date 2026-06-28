@@ -140,6 +140,18 @@ Fix-PRs überführt. Der Audit lief am 2026-06-23 gegen den aktuellen
   und Tests; offen bleiben vor allem Guards, Requires-Metadaten und finale
   Format-Verifikation.
 
+**Seit letzter Triage umgesetzt**
+- PR #291 (`Fix Copilot P1 findings in Certify and Pathways`) ist in
+  `jmoskaliuk/lernhive` `main` enthalten:
+  - Certify Cohort-Observer nutzt `event->objectid` und hat Regressionstests.
+  - `source_cohort_service` prüft die benötigten Tabellen über `schema_ready()`
+    vor observer-time DB-Arbeit.
+  - Pathways Collaboration-CMID-Lookup nutzt direkten `course_modules`-Lookup
+    mit `get_fast_modinfo()` statt `get_coursemodule_from_id('', ...)`.
+- PR #329 (`Remove empty XMLDB char defaults`) ist gemerged und entfernt die
+  beobachteten leeren XMLDB-Defaults aus Addons, Notifications und
+  Seminarmanagement.
+
 **Schritte**
 1. Aus den P1-Findings separate Fix-PRs für Certify und Pathways erstellen.
 2. P2-Findings für Orgchart, Hook-Cleanup und Certify-Doku in einem oder zwei
@@ -154,10 +166,60 @@ als niedrig priorisierte Folgearbeit dokumentiert. Die wichtigsten Laufzeit-
 und Upgrade-Risiken in Certify und Pathways sind behoben.
 
 **Done-Checkliste**
-- [ ] P1-Findings behoben oder begründet verworfen
+- [x] P1-Findings behoben oder begründet verworfen
 - [ ] P2-Findings behoben oder in eigene Tasks ausgelagert
 - [ ] P3-Findings behoben oder als Cleanup-Backlog bestätigt
 - [x] test50 in 05-quality.md ergänzt
+- [ ] PO Sign-off
+
+---
+
+### task51 eledia.ai AI Plugin Suite next slices sichtbar machen
+Status:    open
+Feature:   feat51
+Priorität: P1
+Linked:    test51
+
+**Ziel**
+Die laufende eledia.ai AI Plugin Suite bekommt einen expliziten DevFlow-Track,
+damit Launcher, Tutor, Translate, Questiongen, Strategy/Tactics und die lokalen
+Deploy-/Moodle52-Prüfungen nicht nur im Chat-Verlauf hängen.
+
+**Aktueller Stand**
+- PR #1 in `jmoskaliuk/eledia.ai` ist gemerged:
+  `Add course translation language selector`.
+- PR #2 ist gemerged:
+  `Add qbank question generator navigation test`.
+- PR #3 ist gemerged:
+  `Cover mod aichat thread upgrade`.
+- PR #4 ist gemerged:
+  `Document translation language selector`; lokal per Behat verifiziert
+  (`4 scenarios`, `34 steps`).
+- Der lokale `eledia.ai`-Main enthält weitere uncommitted Änderungen rund um
+  AI Tutor, Launcher/Registry, Support Hub, Customer Portal und Website-Builds.
+  Diese Änderungen müssen vor neuen PRs gruppiert und sauber gegen
+  `origin/main` rebased werden.
+
+**Nächste Slices**
+1. Lokale Dirty Changes inventarisieren und in AI-relevante vs. nicht
+   AI-relevante Gruppen trennen.
+2. AI Launcher / `local_lernhive_ai` Registry-Änderungen als eigenen PR
+   vorbereiten, inklusive PHPUnit für Registry/Feature-Sichtbarkeit.
+3. `qtype_aitext` Capability-/External-Regressionstests ergänzen.
+4. Tactics Tools Modal und Strategy Demo-Klickpfade als UI/Behat-Slice
+   vorbereiten.
+5. Nach jedem Slice lokal in Moodle52 deployen, Upgrade/Caches laufen lassen
+   und passende PHPUnit-/Behat-/Smoke-Kommandos dokumentieren.
+
+**Erwartetes Ergebnis**
+Die AI Plugin Suite hat einen nachvollziehbaren, kleinen PR-Fluss. Jeder
+Merge-Kandidat nennt Plugin, Risiko, lokale Verifikation und offenen Follow-up.
+
+**Done-Checkliste**
+- [ ] 01-features.md aktualisiert
+- [ ] 02-user-doc.md aktualisiert (falls UX geändert)
+- [ ] 03-dev-doc.md aktualisiert
+- [ ] test51 in 05-quality.md grün
 - [ ] PO Sign-off
 
 ---

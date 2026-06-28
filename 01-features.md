@@ -360,6 +360,59 @@ follow-up PRs.
 
 ---
 
+### feat51 eledia.ai AI Plugin Suite is tracked as one release surface
+
+**Ziel**
+The eledia.ai AI plugins should move as a coherent suite instead of a set of
+implicit side branches. Launcher, tutor, translation, question generation,
+strategy/tactics helpers and supporting Moodle services must be visible in
+DevFlow with their current verification state and remaining release gaps.
+
+---
+
+**Verhalten**
+
+- The suite has one operational task that lists included plugins and their
+  expected local deploy/test path.
+- Already merged follow-up PRs are recorded so the next iteration starts from
+  the current `main` state.
+- Remaining AI plugin gaps are split into small implementation PRs with
+  focused PHPUnit/Behat or local Moodle smoke verification.
+- Local dirty work in the main checkout is treated as candidate work and is
+  reviewed before being folded into GitHub.
+
+---
+
+**Akzeptanzkriterien**
+
+- feat51.AC01
+  Given:  eledia.ai AI plugin work continues
+  When:   A developer opens DevFlow
+  Then:   They can see the included AI plugin surfaces, current merged PRs and
+          the next concrete implementation slices
+
+- feat51.AC02
+  Given:  A new AI plugin slice is implemented
+  When:   It is proposed for merge
+  Then:   The PR documents local deploy and at least one relevant automated or
+          manual Moodle verification
+
+- feat51.AC03
+  Given:  The local `eledia.ai` checkout contains uncommitted AI plugin changes
+  When:   Work continues
+  Then:   Those changes are reviewed, grouped by plugin and either turned into
+          PRs or explicitly parked
+
+---
+
+**Non-Goals**
+
+- No production deploy is implied by this tracking feature.
+- No new AI provider contract is introduced by documenting the suite.
+- No merge of unrelated website/customer-portal changes into AI plugin PRs.
+
+---
+
 ### featXX [Feature-Name]
 
 **Ziel**

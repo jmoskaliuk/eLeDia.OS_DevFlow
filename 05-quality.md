@@ -403,7 +403,38 @@ of staying hidden in old PR comments.
 
 **Beobachtetes Ergebnis**
 Audit findings were documented on 2026-06-23 in `04-tasks.md` as `task50`.
-Implementation fixes are still pending.
+P1 implementation fixes are present in LernHive PR #291. XMLDB empty-default
+cleanup was merged in PR #329. Remaining work is the lower-priority Orgchart,
+`local_lernhive` hook, Certify product-doc sync and course-format metadata /
+guard cleanup.
+
+---
+
+### test51 eledia.ai AI Plugin Suite release surface
+Feature:                feat51
+Akzeptanzkriterium:     feat51.AC01, feat51.AC02, feat51.AC03
+Typ:                    automatisiert + manuell
+Status:                 pending
+Letzter Lauf:           2026-06-28
+
+**Schritte**
+1. Inspect `jmoskaliuk/eledia.ai` open PRs and merged PRs for the current AI
+   plugin suite state.
+2. Inventory local uncommitted AI plugin changes and group them by owning
+   plugin.
+3. For each next slice, run local Moodle52 deploy/upgrade/cache reset and the
+   relevant focused PHPUnit, Behat or manual smoke path.
+4. Confirm that PR descriptions document commands and any skipped checks.
+
+**Erwartetes Ergebnis**
+The AI plugin suite has no hidden release-critical changes. Each active slice is
+tracked by plugin, has an explicit verification route and avoids mixing
+unrelated website/customer-portal work into AI plugin PRs.
+
+**Beobachtetes Ergebnis**
+PR #1 through #4 in `jmoskaliuk/eledia.ai` are merged. PR #4 was locally
+verified with Behat (`4 scenarios`, `34 steps`). The local checkout still has
+uncommitted AI-related changes that need grouping before the next code PR.
 
 ---
 
