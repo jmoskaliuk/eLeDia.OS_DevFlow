@@ -23,7 +23,7 @@ Zusammenspiel:
 | [`moodle-deploy.md`](./moodle-deploy.md) | Deploy eines Moodle-Plugins aus dem Workspace in eine lokale Moodle-Instanz (Orb + Docker). | „deploy", „push to Moodle", „purge caches" |
 | [`moodle-plugin-submit.md`](./moodle-plugin-submit.md) | End-to-End-Playbook für die Einreichung eines Plugins im Moodle Plugins Directory. | „submit", „publish", „plugin approval" |
 | [`moodle-design-system.md`](./moodle-design-system.md) | Authoritative Referenz für `@moodlehq/design-system` (MDS): Tokens `--mds-*`, Button-API, SCSS-Entrypoints inkl. scssphp-Legacy, Testing, Guardrails. | `@moodlehq/design-system`, `--mds-*`, MDS, ZeroHeight, DTCG-Tokens, Moodle-5.2-React-UI |
-| [`eledia-moodle-ux.md`](./eledia-moodle-ux.md) | eLeDia-UX-Patterns für Moodle-Plugins (Layout, Farben, Komponenten, Icons). Verweist für DS-Tiefe auf `moodle-design-system.md`. | UI-Arbeit, „eLeDia style", „make it look like LeitnerFlow" |
+| [`eledia-moodle-ux.md`](./eledia-moodle-ux.md) | eLeDia/LernHive-UX-System für ALLE Plugins (lernhive + eledia.ai): `--lh-*`-Tokens, Plugin Shell, Icon-Konvention, A11y. Kondensat von `mockups/ux-system.md` (lernhive-Repo) — das Dokument ist die Quelle der Wahrheit. Verweist für DS-Tiefe auf `moodle-design-system.md`. | UI-Arbeit, „eLeDia style", „LernHive style", „Plugin Shell" |
 
 ### Odoo 18 Enterprise
 
@@ -71,6 +71,8 @@ Die Skills funktionieren auch ohne KI als Referenzdokumente. Sie enthalten Code-
 - Jeder Skill hat oben ein YAML-Frontmatter (`name`, `description`). Dieses ist für KI-Systeme, die Skills automatisch laden; bitte beim Editieren nicht entfernen.
 
 ## Stand
+
+**2026-07-05** — **UX-Konsolidierung:** `eledia-moodle-ux.md` komplett neu geschrieben als Kondensat von `mockups/ux-system.md` (lernhive-Repo, Ratified v0.1.16 + neues § 12 Cross-Repo-Scope). Die LeitnerFlow-Palette (`--lf-*`, Grün `#669933`, Rot `#cc3333`) ist raus — kanonisch sind die `--lh-*`-Tokens (Success `#3aadaa`, Danger `#ab1d79`). Geltung explizit auf beide Repos ausgedehnt (lernhive `plugins/` + eledia.ai `custom-plugins/`), inkl. Fallback-Pattern `var(--lh-*, default)`, Verbot von Inline-CSS in Templates, `lh-chat`-Anatomie und der sanktionierten `--eat-*`-Ausnahme für `block_eledia_aitutor`. Kopien synchronisiert: lernhive `meta/eLeDia.OS_DevFlow/Skills/` + claude.ai-Upload-Staging (`_claude-skills-update/eledia-moodle-ux/SKILL.md` — Re-Upload nötig).
 
 **2026-05-09** — Neue **Odoo-18-Enterprise**-Skill-Sammlung (8 Files):
 
