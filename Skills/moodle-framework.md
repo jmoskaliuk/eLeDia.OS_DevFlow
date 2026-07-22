@@ -130,6 +130,24 @@ GitHub-Release-Asset. Plugin-Directory-Upload bleibt manuell.
 
 ## Schnellstart: Neues Plugin
 
+**eledia.ai-Suite-Plugin (bevorzugt):** Im Monorepo `eledia.ai` existiert ein
+Scaffold-Generator, der ein installierbares Plugin mit Suite-Shell und dem
+synchronisierten lh-core-Design-Block erzeugt (Single Source:
+`design/lh-core.css`, Sync/CI-Gate: `scripts/sync-design.php --check`,
+Doku: `design/README.md`):
+
+```bash
+cd ~/Documents/Code/eledia.ai
+php scripts/new-plugin.php local <shortname> "Human Name"
+```
+
+Danach: Capabilities in `db/access.php` ergaenzen,
+`classes/output/shell.php::nav_items()` bei neuen Seiten erweitern, Plugin in
+`.forgejo/workflows/moodle-ci.yml` registrieren. Design-Aenderungen NUR in
+`design/lh-core.css`, dann `php scripts/sync-design.php`.
+
+**Generisches Moodle-Plugin (mod/block/tool ausserhalb der Suite):**
+
 ```bash
 # 1. Scaffold generieren (Typ kann mod, local, block, tool etc. sein)
 ~/moodle-scaffold-plugin.sh <plugintype> <shortname> "Human Name"
