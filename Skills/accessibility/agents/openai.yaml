@@ -1,0 +1,4 @@
+interface:
+  display_name: "Accessibility"
+  short_description: "Web-Audits nach WCAG, BITV und BFSG"
+  default_prompt: "Nutze $accessibility, um diese Web-Oberfläche auf Barrierefreiheit zu prüfen."

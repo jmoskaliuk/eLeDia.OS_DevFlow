@@ -1,0 +1,4 @@
+interface:
+  display_name: "Odoo"
+  short_description: "Odoo-18-Entwicklung, Betrieb und Sicherheit"
+  default_prompt: "Nutze $odoo, um diese Odoo-18-Aufgabe sicher und wartbar umzusetzen."
