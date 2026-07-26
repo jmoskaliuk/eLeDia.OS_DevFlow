@@ -1,6 +1,6 @@
 # Skills
 
-Dieser Ordner bündelt die **Claude-Skills**, die für die Moodle-Plugin-Entwicklung im eLeDia.OS-Kontext relevant sind. Jeder Skill ist eine eigenständige `.md`-Datei mit YAML-Frontmatter (Name + Trigger-Beschreibung) und dem vollständigen Anleitungstext.
+Dieser Ordner bündelt die **agentenübergreifenden Skills** für eLeDia.OS. Jeder kanonische Skill ist ein eigenständiges Paket unter `Skills/<name>/` mit einer primären `SKILL.md`, UI-Metadaten unter `agents/` und optionalen Detailreferenzen unter `references/`.
 
 ## Sinn und Zweck
 
@@ -10,67 +10,50 @@ Zusammenspiel:
 
 - `00-master.md` … `05-quality.md` → projekt-spezifischer Zustand (Features, Tasks, Bugs, Docs)
 - `Playbooks/*.md` → projekt-spezifische Deploy- und Release-Abläufe
-- `Skills/*.md` → **generische**, projektübergreifende Expertise (Architektur, CI, Submission, UX)
+- `Skills/<name>/SKILL.md` → **generische**, projektübergreifende Expertise; Details werden bei Bedarf aus `references/` geladen
 
 ## Inhalte
 
-### Moodle
-
-| Skill | Zweck | Trigger |
+| Skill | Zweck | Einstieg |
 |---|---|---|
-| [`moodle-framework.md`](./moodle-framework.md) | Konsolidiertes Meta-Framework für Moodle-Plugin-Entwicklung (Architektur + CI + Deploy + Submission + UX). | jede Moodle-Aufgabe |
-| [`moodle-dev.md`](./moodle-dev.md) | Deep-Expert-Wissen für Moodle 5.x: Plugin-Typen, APIs, Hooks, Events, XMLDB, Web Services, Coding Standards. | Plugin-Entwicklung, API-Fragen |
-| [`moodle-deploy.md`](./moodle-deploy.md) | Deploy eines Moodle-Plugins aus dem Workspace in eine lokale Moodle-Instanz (Orb + Docker). | „deploy", „push to Moodle", „purge caches" |
-| [`moodle-plugin-submit.md`](./moodle-plugin-submit.md) | End-to-End-Playbook für die Einreichung eines Plugins im Moodle Plugins Directory. | „submit", „publish", „plugin approval" |
-| [`moodle-design-system.md`](./moodle-design-system.md) | Authoritative Referenz für `@moodlehq/design-system` (MDS): Tokens `--mds-*`, Button-API, SCSS-Entrypoints inkl. scssphp-Legacy, Testing, Guardrails. | `@moodlehq/design-system`, `--mds-*`, MDS, ZeroHeight, DTCG-Tokens, Moodle-5.2-React-UI |
-| [`eledia-moodle-ux.md`](./eledia-moodle-ux.md) | eLeDia/LernHive-UX-System für ALLE Plugins (lernhive + eledia.ai): `--lh-*`-Tokens, Plugin Shell, Icon-Konvention, A11y. Kondensat von `mockups/ux-system.md` (lernhive-Repo) — das Dokument ist die Quelle der Wahrheit. Verweist für DS-Tiefe auf `moodle-design-system.md`. | UI-Arbeit, „eLeDia style", „LernHive style", „Plugin Shell" |
+| **Moodle** | Moodle-Plugin-Entwicklung, Tests, CI, Deployment, Submission, Design System und eLeDia UX. | [`moodle/SKILL.md`](./moodle/SKILL.md) |
+| **Odoo** | Odoo-18-Entwicklung, Views, Security, Tests, Performance, Deployment und Enterprise-Themen. | [`odoo/SKILL.md`](./odoo/SKILL.md) |
+| **Accessibility** | Audits und Remediation nach WCAG 2.2 AA mit EN 301 549-, BITV- und BFSG-Mapping. | [`accessibility/SKILL.md`](./accessibility/SKILL.md) |
+| **Knowledge Curator** | Prüft neue, wiederverwendbare Erkenntnisse und pflegt GitHub als Quelle der Wahrheit. | [`knowledge-curator/SKILL.md`](./knowledge-curator/SKILL.md) |
 
-### Odoo 18 Enterprise
-
-Modulare Skill-Sammlung für die Odoo-18-Entwicklung (Enterprise als Default).
-Basis: offizielle Odoo-Developer-Doku, mit OCA-Abweichungen markiert.
-Bei jeder Odoo-Aufgabe **immer** zuerst `odoo-dev.md` konsultieren, dann den
-oder die zur Aufgabe passenden Sub-Skills laden.
-
-| Skill | Zweck | Trigger |
-|---|---|---|
-| [`odoo-dev.md`](./odoo-dev.md) | **Dachskill.** Modul-Anatomie, `__manifest__.py`, ORM-Basics, Inheritance (`_inherit`, `_inherits`, prototype), Hooks, Bootstrapping. | jede Odoo-Aufgabe |
-| [`odoo-coding-guidelines.md`](./odoo-coding-guidelines.md) | Style-Guide nach offizieller Odoo-Doku + OCA-Strenger. XML-IDs, Naming, Imports, pylint-odoo, pre-commit, Commit-Messages. | Code-Style, Linting, Review |
-| [`odoo-views-frontend.md`](./odoo-views-frontend.md) | Form/List/Kanban/Search/Graph/Pivot/Calendar/Activity-Views, XPath-Inheritance, Widgets, Actions, Menus, OWL 2, QWeb, Reports. | UI-Arbeit, Views, OWL, Reports |
-| [`odoo-security.md`](./odoo-security.md) | ACL (`ir.model.access`), Record Rules (`ir.rule`), Groups, `sudo()`, Multi-Company, Frontend-Auth, API-Tokens, GDPR/DSGVO. | Berechtigungen, Datentrennung, GDPR |
-| [`odoo-testing.md`](./odoo-testing.md) | `TransactionCase`, `HttpCase`, Tours, Hoot (Odoo-18-neu), Test-Tags, Mocking, Coverage, GitHub-Actions-CI. | Tests, CI-Setup |
-| [`odoo-performance.md`](./odoo-performance.md) | Computed/Stored, Indizes, `read_group`, Prefetching, `ormcache`, Batch-Ops, Cron-Tuning, Profiling, PostgreSQL-Tuning. | Performance, „langsam", N+1, OOM |
-| [`odoo-deploy.md`](./odoo-deploy.md) | odoo.sh, Docker, Reverse-Proxy (nginx/Caddy), Worker-Sizing, Migrationsskripte, OpenUpgrade (17→18), Backup, Monitoring, Secrets. | Deployment, Updates, Migration |
-| [`odoo-enterprise-specifics.md`](./odoo-enterprise-specifics.md) | Studio, Approvals, Documents, Sign, Subscriptions, Field Service, Helpdesk, Quality, IoT, VoIP, Marketing Automation, Knowledge, Properties. OPL-1-Lizenz-Regeln. | Enterprise-Modul-Erweiterung |
-
-### Querschnitt
-
-| Skill | Zweck | Trigger |
-|---|---|---|
-| [`webui-accessibility-auditor.md`](./webui-accessibility-auditor.md) | Accessibility-Audit nach WCAG 2.2 AA mit EN 301 549-, BITV- und BFSG-Mapping. | Barrierefreiheits-Prüfung |
+Die kanonischen Skill-Namen sind bewusst kurz und einheitlich: `moodle`,
+`odoo`, `accessibility` und `knowledge-curator`. Die bisherigen flachen
+Dateien bleiben während der Migration vorübergehend als Quelle erhalten und
+werden erst nach erfolgreichem Multica-Import entfernt.
 
 ## Nutzung
 
-### Für Claude / ChatGPT
+### Für Agents
 
-1. Session starten und `00-master.md` lesen.
-2. Projektkontext laden (`01-features.md`, `04-tasks.md`).
-3. Bei **Moodle-Themen** **immer zuerst** `Skills/moodle-framework.md` konsultieren und — je nach Aufgabe — die spezifischen Skills dazunehmen.
-4. Bei UI-Arbeit (Moodle) zusätzlich `Skills/eledia-moodle-ux.md`.
-5. Vor Submission (Moodle) das komplette `Skills/moodle-plugin-submit.md` durchgehen.
-6. Bei **Odoo-Themen** **immer zuerst** `Skills/odoo-dev.md` konsultieren, dann den oder die zur Aufgabe passenden Sub-Skills (`odoo-coding-guidelines.md`, `odoo-views-frontend.md`, `odoo-security.md`, `odoo-testing.md`, `odoo-performance.md`, `odoo-deploy.md`, `odoo-enterprise-specifics.md`) dazu.
+1. Projektkontext aus den DevFlow- und Multica-Projektressourcen laden.
+2. Bei Moodle-Themen `Skills/moodle/SKILL.md` verwenden; der Skill wählt die
+   nötigen Referenzen.
+3. Bei Odoo-Themen `Skills/odoo/SKILL.md` verwenden.
+4. Für Barrierefreiheitsprüfungen `Skills/accessibility/SKILL.md` verwenden.
+5. Verifiziertes, wiederverwendbares Wissen über
+   `Skills/knowledge-curator/SKILL.md` als GitHub-Änderung vorschlagen.
 
 ### Für Menschen
 
-Die Skills funktionieren auch ohne KI als Referenzdokumente. Sie enthalten Code-Patterns, Anti-Patterns, Entscheidungsbäume und Checklisten, die im Team-Alltag verwendet werden können.
+Die Referenzen bleiben direkt lesbar und enthalten Code-Patterns,
+Anti-Patterns, Entscheidungsbäume und Checklisten.
 
 ## Pflege
+
+- Neue Skills immer als Paket `Skills/<name>/SKILL.md` anlegen; Details in `references/` auslagern. Kanonische Namen bestehen aus Kleinbuchstaben, Ziffern und Bindestrichen.
 
 - Skills werden **nicht** mit dem Projektstand vermischt. Projektbezogene Besonderheiten (z. B. der konkrete Container-Name, die konkrete Quiz-Endpoint-URL) gehören in einen Playbook unter `Playbooks/`, nicht in den Skill.
 - Ändert sich Moodle-Core (neue Hook-API, neue Context-Klasse, neue Precheck-Regel), **aktualisiere den Skill**, nicht das Playbook.
 - Jeder Skill hat oben ein YAML-Frontmatter (`name`, `description`). Dieses ist für KI-Systeme, die Skills automatisch laden; bitte beim Editieren nicht entfernen.
 
 ## Stand
+
+**2026-07-26** — Kanonische Multica-Pakete `moodle`, `odoo` und `accessibility` eingeführt. Bestehendes Fachwissen als Referenzen übernommen; flache Altdateien bleiben bis zur Import-Verifikation erhalten.
 
 **2026-07-05** — **UX-Konsolidierung:** `eledia-moodle-ux.md` komplett neu geschrieben als Kondensat von `mockups/ux-system.md` (lernhive-Repo, Ratified v0.1.16 + neues § 12 Cross-Repo-Scope). Die LeitnerFlow-Palette (`--lf-*`, Grün `#669933`, Rot `#cc3333`) ist raus — kanonisch sind die `--lh-*`-Tokens (Success `#3aadaa`, Danger `#ab1d79`). Geltung explizit auf beide Repos ausgedehnt (lernhive `plugins/` + eledia.ai `custom-plugins/`), inkl. Fallback-Pattern `var(--lh-*, default)`, Verbot von Inline-CSS in Templates, `lh-chat`-Anatomie und der sanktionierten `--eat-*`-Ausnahme für `block_eledia_aitutor`. Kopien synchronisiert: lernhive `meta/eLeDia.OS_DevFlow/Skills/` + claude.ai-Upload-Staging (`_claude-skills-update/eledia-moodle-ux/SKILL.md` — Re-Upload nötig).
 
