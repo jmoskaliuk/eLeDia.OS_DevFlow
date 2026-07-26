@@ -98,6 +98,13 @@ require_login();         // Enforce authentication
 require_capability('mod/example:view', $context);
 ```
 
+For Moodle 5.1+, this root-entry pattern under
+`public/<plugintype>/<plugin>/` deliberately resolves to
+`public/config.php`, Moodle's loader for the installation-level configuration.
+Do not add another `../` to bypass that loader. Calculate and verify the depth
+separately for every nested web or CLI entry script; do not apply the root depth
+with a blind bulk replacement.
+
 ### Context Hierarchy
 ```
 system → coursecat → course → module → block → user
