@@ -1,0 +1,4 @@
+interface:
+  display_name: "Knowledge Curator"
+  short_description: "Pflegt verifiziertes Wissen zentral in GitHub"
+  default_prompt: "Nutze $knowledge-curator, um neue Erkenntnisse zu prüfen und als nachvollziehbaren Skill-PR vorzuschlagen."
