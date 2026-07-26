@@ -22,9 +22,8 @@ Zusammenspiel:
 | **Knowledge Curator** | Prüft neue, wiederverwendbare Erkenntnisse und pflegt GitHub als Quelle der Wahrheit. | [`knowledge-curator/SKILL.md`](./knowledge-curator/SKILL.md) |
 
 Die kanonischen Skill-Namen sind bewusst kurz und einheitlich: `moodle`,
-`odoo`, `accessibility` und `knowledge-curator`. Die bisherigen flachen
-Dateien bleiben während der Migration vorübergehend als Quelle erhalten und
-werden erst nach erfolgreichem Multica-Import entfernt.
+`odoo`, `accessibility` und `knowledge-curator`. Fachdetails liegen ausschließlich
+in den `references/`-Verzeichnissen der jeweiligen Pakete.
 
 ## Nutzung
 
@@ -53,7 +52,7 @@ Anti-Patterns, Entscheidungsbäume und Checklisten.
 
 ## Stand
 
-**2026-07-26** — Kanonische Multica-Pakete `moodle`, `odoo` und `accessibility` eingeführt. Bestehendes Fachwissen als Referenzen übernommen; flache Altdateien bleiben bis zur Import-Verifikation erhalten.
+**2026-07-26** — Kanonische Multica-Pakete `moodle`, `odoo` und `accessibility` eingeführt. Bestehendes Fachwissen als Referenzen übernommen und die flachen Altdateien nach erfolgreicher Paketvalidierung entfernt.
 
 **2026-07-05** — **UX-Konsolidierung:** `eledia-moodle-ux.md` komplett neu geschrieben als Kondensat von `mockups/ux-system.md` (lernhive-Repo, Ratified v0.1.16 + neues § 12 Cross-Repo-Scope). Die LeitnerFlow-Palette (`--lf-*`, Grün `#669933`, Rot `#cc3333`) ist raus — kanonisch sind die `--lh-*`-Tokens (Success `#3aadaa`, Danger `#ab1d79`). Geltung explizit auf beide Repos ausgedehnt (lernhive `plugins/` + eledia.ai `custom-plugins/`), inkl. Fallback-Pattern `var(--lh-*, default)`, Verbot von Inline-CSS in Templates, `lh-chat`-Anatomie und der sanktionierten `--eat-*`-Ausnahme für `block_eledia_aitutor`. Kopien synchronisiert: lernhive `meta/eLeDia.OS_DevFlow/Skills/` + claude.ai-Upload-Staging (`_claude-skills-update/eledia-moodle-ux/SKILL.md` — Re-Upload nötig).
 
