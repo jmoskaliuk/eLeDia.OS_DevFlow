@@ -1,0 +1,4 @@
+interface:
+  display_name: "Moodle"
+  short_description: "Moodle-Entwicklung, Tests und Deployment"
+  default_prompt: "Nutze $moodle, um diese Moodle-Aufgabe nach den eLeDia-Standards umzusetzen."
