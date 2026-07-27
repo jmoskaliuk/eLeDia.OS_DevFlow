@@ -59,6 +59,25 @@ $plugin->maturity  = MATURITY_STABLE;
 $plugin->release   = '1.0.0';
 ```
 
+### Optional eLeDia Demo-Data Hub
+
+For customer-facing eLeDia plugins on Moodle 4.5–5.2, treat
+`local_eledia_demodata` as an optional development integration:
+
+- Do not declare the hub in `$plugin->dependencies`; the customer plugin must
+  install and upgrade without it.
+- Guard the provider class declaration with
+  `interface_exists(provider_interface::class)` before PHP evaluates
+  `implements provider_interface`. Without the hub, autoloading the provider
+  must not fail.
+- Keep convention-based discovery enabled so the hub registry automatically
+  finds the provider when the hub is installed.
+- Guard manual hub entry points with `class_exists(registry::class)` and raise a
+  localized, user-facing `moodle_exception` when the hub is unavailable.
+- Test both installation matrices: without the hub, assert that no dependency
+  is declared and provider autoload is safe; with the hub, assert that the
+  registry discovers and instantiates the provider.
+
 ### Moodle 5.x Breaking Changes to Know
 - **Hooks API** fully replaces most `*_extend_*` callback patterns — prefer `\core\hook\*`
 - **Output subsystem**: Always use `$OUTPUT->render_from_template()` + mustache; avoid direct HTML
