@@ -1768,6 +1768,32 @@ $CFG->behat_profiles  = [
 ];
 ```
 
+### WebDriver State Between Scenarios (Moodle 5.2.1)
+
+Do not assume that Moodle reuses one WebDriver session across Behat scenarios.
+In Moodle 5.2.1, core's `@AfterScenario` hook stops the Mink session after every
+scenario, and the `@BeforeScenario @javascript` hooks start or restart a session
+for the next JavaScript scenario.
+
+- Before reporting that session-scoped browser state leaks into a later
+  scenario, inspect `behat_hooks.php` in the exact target Moodle version and
+  reproduce the leak without a proposed cleanup hook.
+- With Moodle 5.2.1's standard WebDriver lifecycle, CDP state such as
+  `Emulation.setDeviceMetricsOverride` ends with the stopped session, including
+  when the scenario itself fails.
+- Do not add a plugin-local `@AfterScenario` hook solely to protect later
+  scenarios from that state. Keep step-level cleanup only when later steps in
+  the same scenario require the default state.
+- Treat custom runners or drivers that alter the core session lifecycle as a
+  separate case and verify them with a focused two-scenario leak test.
+
+Upstream evidence for tag `v5.2.1`: session
+[`restart_session()`](https://github.com/moodle/moodle/blob/63e16b757ca8fee05b672a27c23ee27cc8f9fabb/public/lib/tests/behat/behat_hooks.php#L283-L305),
+JavaScript-scenario
+[startup hooks](https://github.com/moodle/moodle/blob/63e16b757ca8fee05b672a27c23ee27cc8f9fabb/public/lib/tests/behat/behat_hooks.php#L324-L388),
+and the per-scenario
+[`stop()` hook](https://github.com/moodle/moodle/blob/63e16b757ca8fee05b672a27c23ee27cc8f9fabb/public/lib/tests/behat/behat_hooks.php#L662-L687).
+
 ---
 
 ## Test Data Generators (Quick Reference)
