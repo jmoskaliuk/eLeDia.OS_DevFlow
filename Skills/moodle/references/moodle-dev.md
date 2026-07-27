@@ -984,6 +984,28 @@ See `plugin-development.md` → Hooks API section.
 
 ---
 
+## db/install.php and own capabilities
+
+In Moodle 5.2, a plugin's `db/install.php` hook runs before the normal install
+flow calls `update_capabilities()` for that component. If the hook assigns one
+of the plugin's own capabilities, register the component's `db/access.php`
+definitions explicitly before calling `assign_capability()` directly or
+through a role-seeding helper:
+
+```php
+function xmldb_local_example_install(): void {
+    update_capabilities('local_example');
+    \local_example\role_seeder::ensure();
+}
+```
+
+Do this only when the install hook depends on the component's own capabilities.
+Without it, fresh installation, PHPUnit init, and Behat init can fail with
+`Capability '…' was not found!`. For hooks that do not use their own
+capabilities, let Moodle's normal post-hook processing register them.
+
+---
+
 ## upgrade.php
 
 ```php

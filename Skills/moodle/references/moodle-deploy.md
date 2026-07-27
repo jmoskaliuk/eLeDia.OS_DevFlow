@@ -2,6 +2,36 @@
 
 This skill deploys Moodle plugins from the workspace to a local Moodle instance running in Docker on Orb.
 
+## Isolate concurrent test runs
+
+Treat a Moodle test stack as the combination of source tree, Compose project,
+database volumes, PHPUnit/Behat dataroots, and test configuration. A shared
+stack is suitable only for single-owner or demo work. Never run plugin sync,
+PHPUnit init, or Behat init concurrently against the same stack: one run can
+replace the mounted source or wipe test data while another run is calculating
+the environment version hash.
+
+For every concurrent issue or agent run:
+
+1. Create a private Moodle source tree. On APFS, a copy-on-write clone such as
+   `cp -Rc <source-wwwroot> <issue-wwwroot>` is fast; use a full copy on other
+   filesystems.
+2. Set a unique `COMPOSE_PROJECT_NAME`, `MOODLE_DOCKER_WWWROOT`, and published
+   web port before starting moodle-docker.
+3. Give the test runner its own target configuration. Point `CONTAINER` at the
+   issue stack and set `MOODLE_REPO_ROOT` and `MOODLE_CLI_ROOT` for that
+   checkout's layout.
+4. Provision every plugin declared in `$plugin->dependencies` before running
+   Moodle installation, `upgrade.php`, PHPUnit init, or Behat init. Pin and
+   validate third-party revisions against the target Moodle branch.
+5. Run sync, init, and tests only in that issue stack. Stop or remove its
+   Compose project when finished.
+
+If init succeeds and the next command reports a `versionshash` or “initialised
+for different version” mismatch, first check whether another process changed
+the mounted source tree or test dataroot. Retrying against the same shared
+stack does not remove that race.
+
 ## How it works
 
 The deployment script (`scripts/deploy.sh`) handles everything automatically:
