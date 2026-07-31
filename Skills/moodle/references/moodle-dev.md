@@ -1787,6 +1787,37 @@ $CFG->behat_profiles  = [
 ];
 ```
 
+### Browser Session State Between Scenarios (Moodle 5.2)
+
+Do not assume that Moodle reuses one browser session across Behat scenarios.
+In Moodle 5.2, core's `@AfterScenario` hook stops the current Mink session after
+every scenario. Before the next scenario, core calls `restart_session()` through
+the JavaScript startup hooks or `before_browserkit_scenarios()` for non-JavaScript
+scenarios.
+
+- Before reporting that session-scoped browser state leaks into a later
+  scenario, inspect `behat_hooks.php` in the exact target Moodle version and
+  reproduce the leak without a proposed cleanup hook.
+- With Moodle 5.2's standard lifecycle, WebDriver-session state such as CDP
+  device metrics ends with the stopped session, including when the scenario
+  itself fails. Verify storage and profile-backed state separately when the
+  driver uses a custom persistent profile.
+- Do not add a plugin-local `@AfterScenario` hook solely to protect later
+  scenarios from that state. It is defense in depth, not evidence of a
+  cross-scenario leak.
+- Keep step-level cleanup when later steps in the same scenario require the
+  default state because no session boundary exists between steps.
+- Treat custom runners or drivers that alter the core session lifecycle as a
+  separate case and verify them with a focused two-scenario leak test.
+
+Verified in tag `v5.2.1` and again in `MOODLE_502_STABLE` at commit
+`519caca657e51b66970e00d45ab073de0c1b4b9c`: session
+[`restart_session()` and the non-JavaScript hook](https://github.com/moodle/moodle/blob/519caca657e51b66970e00d45ab073de0c1b4b9c/public/lib/tests/behat/behat_hooks.php#L283-L322),
+JavaScript-scenario
+[startup hooks](https://github.com/moodle/moodle/blob/519caca657e51b66970e00d45ab073de0c1b4b9c/public/lib/tests/behat/behat_hooks.php#L324-L388),
+and the per-scenario
+[`stop()` hook](https://github.com/moodle/moodle/blob/519caca657e51b66970e00d45ab073de0c1b4b9c/public/lib/tests/behat/behat_hooks.php#L662-L687).
+
 ---
 
 ## Test Data Generators (Quick Reference)
