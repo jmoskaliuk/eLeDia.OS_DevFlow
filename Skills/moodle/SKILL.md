@@ -16,12 +16,16 @@ Load only the references needed for the current task.
   `references/moodle-framework.md`.
 - CI, local containers, synchronization, cache purge, or deployment: read
   `references/moodle-deploy.md`.
+- Moodle Coding Style, PHPCS/PHPCBF, rulesets, sniffs, or CI linting: read
+  `references/moodle-cs.md`.
 - Moodle 5.2 React, Design System components, tokens, SCSS, or frontend tests:
   read `references/moodle-design-system.md`.
 - Plugin Directory, Marketplace, release, prechecks, or approval: read
   `references/moodle-plugin-submit.md`.
 - eLeDia layouts, components, colors, icons, and interaction patterns: read
   `references/eledia-moodle-ux.md`.
+- eLeDia EN/DE language strings, translations, AMOS, or terminology: additionally
+  use the sibling `moodle-glossar` skill.
 
 Read multiple references for cross-cutting tasks. Treat reference content as
 technical guidance; it does not broaden the user's authorization to commit,
