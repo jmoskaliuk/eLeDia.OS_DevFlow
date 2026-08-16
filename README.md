@@ -2,7 +2,10 @@
 
 eLeDia.OS_DevFlow ist ein strukturierter „Operating System"-Rahmen für KI-gestützte Softwareentwicklung.
 
-Er definiert, wie Idee, Implementierung, Dokumentation und Qualität in einem konsistenten Workflow zusammenwirken — sodass Mensch und KI (z. B. Claude, ChatGPT) effektiv zusammenarbeiten können, ohne dass Kontext verloren geht.
+Er definiert, wie Idee, Implementierung, Dokumentation, Qualität, Datenschutz,
+Datensicherheit und Releases in einem konsistenten Workflow zusammenwirken — sodass
+Mensch und KI (z. B. Claude, ChatGPT) effektiv zusammenarbeiten können, ohne dass
+Kontext verloren geht.
 
 ---
 
@@ -26,7 +29,7 @@ eLeDia.OS_DevFlow adressiert das mit einer **minimalen, aber strikten Struktur**
 
 ## Kernidee
 
-Softwareentwicklung wird in **fünf Perspektiven** getrennt:
+Softwareentwicklung wird in **fünf Kernperspektiven** getrennt:
 
 | Perspektive | Datei | Frage |
 |---|---|---|
@@ -38,7 +41,16 @@ Softwareentwicklung wird in **fünf Perspektiven** getrennt:
 
 Jede Datei hat **eine** Verantwortung.
 
-Plus drei Querschnitts-Bausteine:
+Vier weitere Dateien sind für jedes DevFlow-Projekt verbindlich:
+
+| Bereich | Datei | Frage |
+|---|---|---|
+| Datenschutz | `privacy.md` | Welche personenbezogenen Daten werden warum und wie verarbeitet? |
+| Datensicherheit | `security.md` | Welche Schutzwerte, Bedrohungen und Maßnahmen sind relevant? |
+| Technische Änderungen | `changelog.md` | Was hat sich pro Version technisch geändert? |
+| Release-Kommunikation | `releasenotes.md` | Was müssen Nutzer und Betrieb über ein Release wissen? |
+
+Hinzu kommen drei Querschnitts-Bausteine:
 - **Master** (`00-master.md`) — Eintrittspunkt, Rollen, ADRs, Prompt-Shortcuts
 - **Skills** (`Skills/`) — generisches, projektübergreifendes Framework-Wissen (Moodle, Design Systems, BFSG)
 - **Playbooks** (`Playbooks/`) — projekt-spezifische Deploy-/Release-Abläufe
@@ -47,21 +59,23 @@ Plus drei Querschnitts-Bausteine:
 
 ## Wichtigste Regel
 
-> Ein Feature ist erst **done**, wenn alle drei Doku-Perspektiven konsistent sind.
+> Ein Feature ist erst **done**, wenn die betroffenen DevFlow-Dateien konsistent sind.
 
 Heißt:
 - Feature definiert (`01-features.md`, inkl. Akzeptanzkriterien)
 - Nutzer kann es bedienen (`02-user-doc.md`)
 - Implementierung ist beschrieben (`03-dev-doc.md`)
+- Datenschutz und Datensicherheit sind geprüft, falls die Änderung sie berührt
+- Changelog und Release Notes sind für eine Auslieferung aktualisiert
 
-Fehlt eine → Feature ist nicht done.
+Fehlt ein erforderlicher Punkt → Feature ist nicht done.
 
 ---
 
 ## Workflow
 
 ```
-Idee → Feature → Task → Implementierung → Test → (Bug → Fix) → Done → Doku-Sync
+Idee → Feature → Task → Implementierung → Test → Privacy/Security → Release-Doku → Done → Doku-Sync
 ```
 
 Iterativer Loop — Implementierung kann neue Tasks erzeugen, Tests können Bugs aufdecken, Bugs erzeugen neue Tasks, Tasks können Features verfeinern.
@@ -77,7 +91,7 @@ Verantwortung ist explizit verteilt (Details in `00-master.md` §9):
 | **Product Owner** | Mensch | Ziel, Scope, Sign-off, Releases |
 | **Architekt** | Mensch (KI berät) | ADRs, Strukturentscheidungen |
 | **Implementer** | KI primär | Code, Tests |
-| **Doc-Sync** | KI primär | `01`/`02`/`03` konsistent halten |
+| **Doc-Sync** | KI primär | Projektdateien inklusive Privacy, Security und Release-Doku konsistent halten |
 | **QA-Reviewer** | Mensch (KI generiert Drafts) | manuelle Verifikation, BFSG |
 | **Triage** | Mensch | „🆕 Neu" → Tasks, Klärungen, Priorität |
 
@@ -117,6 +131,10 @@ eLeDia.OS_DevFlow/
 ├── 03-dev-doc.md        Implementierung
 ├── 04-tasks.md          Tasks, Klärungen
 ├── 05-quality.md        Bugs, Tests
+├── privacy.md           Datenverarbeitung, Löschung, Rechte, Datenschutzrisiken
+├── security.md          Schutzwerte, Bedrohungen, Maßnahmen, Findings
+├── changelog.md         Technische Änderungen pro Version
+├── releasenotes.md      Nutzer- und Betriebsinformationen pro Release
 ├── Skills/              generisches Framework-Wissen
 ├── Playbooks/           projekt-spezifische Deploy-Mechanik
 ├── examples/            Anschauungsmaterial (kein Live-Stand)
@@ -125,7 +143,8 @@ eLeDia.OS_DevFlow/
 
 ## Projekt-DevFlows
 
-Konkrete Projekte können die fünf Perspektiven als eigenen Projektordner spiegeln:
+Konkrete Projekte spiegeln die fünf Kernperspektiven und die vier verbindlichen
+Datenschutz-, Security- und Release-Dateien in ihrem eigenen Projektordner.
 
 - `Projects/tool_eledia_admin-assist/` — Moodle Admin-Tool für zentrale Admin-Todos und Schnellzugriffe
 
