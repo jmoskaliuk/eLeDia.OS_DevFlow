@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lokales Moodle verwalten"
+  short_description: "Moodle-Instanzen und Plugin-CI verwalten"
+  default_prompt: "Nutze $manage-local-moodle, um meine lokalen Moodle-Instanzen zu verwalten und ein Plugin in der Versionsmatrix zu testen."

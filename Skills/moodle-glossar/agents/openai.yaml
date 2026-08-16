@@ -1,0 +1,4 @@
+interface:
+  display_name: "Moodle-Glossar"
+  short_description: "Verbindliche EN/DE-Terminologie für Moodle"
+  default_prompt: "Nutze $moodle-glossar, um diese Moodle-Sprachdateien terminologisch konsistent zu übersetzen."

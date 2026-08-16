@@ -17,13 +17,16 @@ Zusammenspiel:
 | Skill | Zweck | Einstieg |
 |---|---|---|
 | **Moodle** | Moodle-Plugin-Entwicklung, Tests, CI, Deployment, Submission, Design System und eLeDia UX. | [`moodle/SKILL.md`](./moodle/SKILL.md) |
+| **Moodle Test** | Isolierte lokale PHPUnit- und Codechecker-Läufe im bestehenden OrbStack-Testcontainer. | [`moodle-test/SKILL.md`](./moodle-test/SKILL.md) |
+| **Lokales Moodle** | Mehrere lokale Moodle-Instanzen verwalten, Plugins installieren und Versionsmatrizen testen. | [`manage-local-moodle/SKILL.md`](./manage-local-moodle/SKILL.md) |
+| **Moodle-Glossar** | Verbindliche EN/DE-Terminologie für die Sprachdateien der eLeDia/LernHive-Plugins. | [`moodle-glossar/SKILL.md`](./moodle-glossar/SKILL.md) |
 | **Odoo** | Odoo-18-Entwicklung, Views, Security, Tests, Performance, Deployment und Enterprise-Themen. | [`odoo/SKILL.md`](./odoo/SKILL.md) |
 | **Accessibility** | Audits und Remediation nach WCAG 2.2 AA mit EN 301 549-, BITV- und BFSG-Mapping. | [`accessibility/SKILL.md`](./accessibility/SKILL.md) |
 | **Knowledge Curator** | Prüft neue, wiederverwendbare Erkenntnisse und pflegt GitHub als Quelle der Wahrheit. | [`knowledge-curator/SKILL.md`](./knowledge-curator/SKILL.md) |
 
-Die kanonischen Skill-Namen sind bewusst kurz und einheitlich: `moodle`,
-`odoo`, `accessibility` und `knowledge-curator`. Fachdetails liegen ausschließlich
-in den `references/`-Verzeichnissen der jeweiligen Pakete.
+Die kanonischen Skill-Namen sind bewusst kurz und einheitlich. Fachdetails liegen
+in den `references/`-Verzeichnissen der jeweiligen Pakete; eigenständige lokale
+Workflows bleiben als separat auslösbare Skills erhalten.
 
 ## Nutzung
 
@@ -32,9 +35,12 @@ in den `references/`-Verzeichnissen der jeweiligen Pakete.
 1. Projektkontext aus den DevFlow- und Multica-Projektressourcen laden.
 2. Bei Moodle-Themen `Skills/moodle/SKILL.md` verwenden; der Skill wählt die
    nötigen Referenzen.
-3. Bei Odoo-Themen `Skills/odoo/SKILL.md` verwenden.
-4. Für Barrierefreiheitsprüfungen `Skills/accessibility/SKILL.md` verwenden.
-5. Verifiziertes, wiederverwendbares Wissen über
+3. Für lokale Moodle-Instanzen und Kompatibilitätstests je nach Umgebung
+   `Skills/manage-local-moodle/SKILL.md` oder `Skills/moodle-test/SKILL.md` verwenden.
+4. Bei Moodle-Sprachdateien zusätzlich `Skills/moodle-glossar/SKILL.md` verwenden.
+5. Bei Odoo-Themen `Skills/odoo/SKILL.md` verwenden.
+6. Für Barrierefreiheitsprüfungen `Skills/accessibility/SKILL.md` verwenden.
+7. Verifiziertes, wiederverwendbares Wissen über
    `Skills/knowledge-curator/SKILL.md` als GitHub-Änderung vorschlagen.
 
 ### Für Menschen
@@ -89,4 +95,3 @@ Basis: Moodle Marketplace Plugin Submission Guidelines vom 30.03.2026.
 - `moodle-plugin-submit.md` → neuer Unterabschnitt in Phase 1 zu Version-Requirements und `js/react/build/` im Release-ZIP.
 
 Basis: Tickets MDL-87759, MDL-87765, MDL-87908, MDL-87922, MDL-87987, MDL-87730, MDL-87909 (alle gegen `MOODLE_502_STABLE` gemergt).
-
