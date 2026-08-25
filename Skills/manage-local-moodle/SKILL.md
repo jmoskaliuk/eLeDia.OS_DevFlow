@@ -1,11 +1,11 @@
 ---
 name: manage-local-moodle
-description: Operate the user's local Moodle 5.2 and Moodle 4.5 LTS test installations on OrbStack, manage additional isolated Moodle instances, install plugins into one or all instances, and run Moodle Plugin CI checks including PHPDoc, PHPCS, PHP lint, PHPUnit, Behat, Mustache, and Grunt. Use for requests about starting or stopping local Moodle, opening the Moodle Control Center, installing/testing/updating Moodle plugins, compatibility matrices, container status or logs, cache purging, and Moodle CLI upgrades in /Users/moskaliuk/Documents/Docker.
+description: Operate the user's local Moodle 5.2 and Moodle 4.5 LTS test installations on OrbStack, manage additional isolated Moodle instances, install plugins into one or all instances, and run Moodle Plugin CI checks including PHPDoc, PHPCS, PHP lint, PHPUnit, Behat, Mustache, and Grunt. Use for requests about starting or stopping local Moodle, opening the Moodle Control Center, installing/testing/updating Moodle plugins, compatibility matrices, container status or logs, cache purging, and Moodle CLI upgrades in /Users/moskaliuk/Documents/Code/eLeDia.OS_DevFlow/Docker.
 ---
 
 # Lokales Moodle verwalten
 
-Alle Operationen über `/Users/moskaliuk/Documents/Docker/moodlectl` ausführen. Das Skript setzt Docker-Variablen, Ports und Projektbezeichner selbst und startet OrbStack bei Bedarf.
+Alle Operationen über `/Users/moskaliuk/Documents/Code/eLeDia.OS_DevFlow/Docker/moodlectl` ausführen. Das Skript setzt Docker-Variablen, Ports und Projektbezeichner selbst und startet OrbStack bei Bedarf. Den früheren Pfad `/Users/moskaliuk/Documents/Docker` nicht mehr verwenden.
 
 ## Instanzen auswählen
 
@@ -18,7 +18,9 @@ Für Start, Stop, Status, Öffnen, Logs, Upgrade und Cache-Löschung jeweils `up
 
 ## Webinterface
 
-Das lokale Control Center über `/Users/moskaliuk/Documents/Docker/moodle-control-center.command` starten. Es ist unter `http://localhost:3000` erreichbar und darf nicht öffentlich bereitgestellt werden. Darüber Instanzen starten, stoppen und öffnen, Plugins installieren, Logs lesen und CI-Prüfungen ausführen.
+Das lokale Control Center über `/Users/moskaliuk/Documents/Code/eLeDia.OS_DevFlow/Docker/moodle-control-center.command` starten. Den Launcher als laufenden Prozess offen lassen; beim Beenden stoppt er UI und API. Die UI ist unter `http://localhost:3000`, ihre lokale API unter `http://127.0.0.1:3010/api/health` erreichbar. Das Control Center darf nicht öffentlich bereitgestellt werden. Darüber Instanzen starten, stoppen und öffnen, Plugins installieren, Logs lesen und CI-Prüfungen ausführen.
+
+Nach dem Start beide Endpunkte mit `curl` prüfen. Die UI kann nur auf IPv6-Loopback lauschen; deshalb für sie `localhost` und nicht zwingend `127.0.0.1` verwenden. Bei Startproblemen `.control-ui.log` und `.control-api.log` im Ordner `moodle-control-center/` lesen.
 
 ## Plugins installieren
 
@@ -35,6 +37,8 @@ Das Skript liest `$plugin->component` aus `version.php`, bestimmt den korrekten 
 - Checks: `static`, `phplint`, `phpcs`, `phpdoc`, `validate`, `savepoints`, `mustache`, `grunt`, `phpunit`, `behat`, `all`
 
 Statische Checks und Testläufe im PHP-Container der ausgewählten Moodle-Version ausführen. PHPUnit und Behat initialisieren ihre getrennten Testdaten beim ersten Aufruf automatisch. Testergebnisse vollständig berichten; Fehler im Plugin nicht als Fehler der lokalen Infrastruktur darstellen.
+
+Wenn ein CI-Aufruf `/var/www/moodle-plugin-ci/bin/moodle-plugin-ci` nicht findet, zuerst prüfen, ob der laufende Webcontainer noch den veralteten Hostpfad `/Users/moskaliuk/Documents/Docker/moodle-plugin-ci` eingebunden hat. Das ist ein Infrastrukturfehler nach dem Verzeichnisumzug, kein Pluginfehler. Vor einer Container-Neuerstellung `doctor`, `status` und `logs-tail` ausführen und Datenvolumes nicht entfernen.
 
 ## Sicherheitsregeln
 
